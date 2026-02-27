@@ -61,14 +61,14 @@ type Screen = {
     y: number
 }
 
-type GameState = {
+export type GameState = {
     player: Player,
     enemy?: Enemy[],
     scores: number,
     typing: boolean,
     screen?: Screen,
     scale: number,
-    romaji: boolean
+    romaji: boolean,
 }
 
 
