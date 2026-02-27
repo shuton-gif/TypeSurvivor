@@ -2,7 +2,7 @@ export type EHKKR = {
   En: string;
   Hi: string;
   Kan: string;
-  Kat: string;
+  Kat?: string;
   Ro: string[];
   level: number; // 1 = most frequent / easiest, 5 = less frequent / harder
 };
