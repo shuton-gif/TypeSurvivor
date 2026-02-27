@@ -1,7 +1,10 @@
 ## PROJECT INFO
-typeScript 2D pixel game
-uses Japanese and English
-translating game
+TypeScript 2D pixel game - "TypeSurvivor"
+Japanese-English translation survival game
+Player moves with physics, enters typing mode to translate vocabulary
+200+ vocab entries with hiragana, katakana, kanji, romaji variations
+Level-based difficulty system (1-5 scale)
+Next.js 15 with app router, CSS modules, custom fonts
 
 ## REQUIREMENTS
 read /TypeSurvivor/package.json
