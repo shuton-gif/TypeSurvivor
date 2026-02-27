@@ -1,29 +1,33 @@
 # Progress Update
 
 ## Added
-- Next.js app structure (`app/` directory with layout.tsx)
-- Game component with player movement (WASD keys)
-- CSS modules for styling (game.module.css, page.module.css)
-- Font loading (@font-face for EnglishPixelFont, JapanesePF)
-- Responsive units (rem/% instead of px)
-- Player, TextBox, and BackGround components
-- Game state management (player position, movement, typing mode)
-- Keyboard event handlers (keydown/keyup)
+- Comprehensive vocabulary system (VOCAB array with 200+ entries)
+- EHKKR type with En/Hi/Kan/Kat/Ro/level fields
+- Katakana support for all vocabulary entries
+- Level-based difficulty system (1-5 scale)
+- handleRomaji function with multiple output types
+- Romaji input toggle (Left Shift key)
+- Complete physics system (gravity, jumping, friction)
+- Japanese IME composition support
+- Typing mode with text input display
 
 ## Changed
-- Moved from src/ to app/ directory structure
-- Updated tsconfig.json to include app directory
-- Fixed font-family syntax and paths
-- Converted pixel values to rem units
-- Improved state management with useRef for event handlers
+- Restructured vocabulary with frequency-based levels
+- Added nullable Kan field for entries without kanji
+- Enhanced handleRomaji with proper null handling
+- Game state includes romaji boolean flag
+- Input handling supports both English and Japanese
 
 ## Deleted
-- SQLite dependencies (better-sqlite3, sqlite3) for now
+- Old incomplete RtoH/RtoE functions
 
 ## Next Functions to Implement
-- Player collision with ground
-- Gravity and jumping mechanics
-- Enemy spawning system
-- Text typing interface for game mechanics
-- Background image/texture loading
-- Audio system integration
+- Enemy spawning with vocabulary challenges
+- Translation validation system
+- Scoring based on accuracy and speed
+- Visual feedback for correct/incorrect answers
+- Progressive difficulty based on player level
+
+## IDEA 
+- maybe use spelling for making walls and weapons. ex: 前方十メートルに石の壁、鉄の剣２本
+- simplied SOV grammar. ex: 私　壁　作る、　攻撃、　たね、　植える
