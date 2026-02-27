@@ -1,6 +1,6 @@
 'use client'
 import styles from './game.module.css';
-import { Vocabulary } from './spells';
+import { VOCAB , handleRomaji} from './spells';
 import { useState, useEffect, useRef } from "react";
 //------------ CSS ---------------
 //BACK GROUND
@@ -81,9 +81,10 @@ const intersected = function (ax: number, ay: number, bx: number, by: number, cx
 const toRem = (param: number, scale?: number): string => {
     return scale != null ? `${(param / 16) * scale}rem` : `${param / 16}rem`
 }
-const absolute = (param: number): number => {
-    return param < 0 ? -param : param
-}
+
+// const absolute = (param: number): number => {
+//     return param < 0 ? -param : param
+// }
 
 export function Game() {
     const [state, setState] = useState<GameState>({
@@ -320,6 +321,7 @@ export function Game() {
                         padding: '1rem'
                     }}
                 >
+                    {/* <input type="text" /> */}
                     {state.player.input}
                 </div>
             )
