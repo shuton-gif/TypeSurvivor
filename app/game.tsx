@@ -8,10 +8,10 @@ const BGTOP: number = 0
 const BGHEIGHT: number = 450
 //GROUND ------------------
 const GTOP: number = 450
-const GHEIGHT: number = 9.375 * 16
+const GHEIGHT: number = 150
 //TEXT BOX -----------------
-const THEIGHT: number = 50
-const TWIDTH: number = 200
+const THEIGHT: number = 100
+const TWIDTH: number = 300
 
 //------------ ENERTIA -------------
 const TOPSPEED: number = 8;
@@ -35,6 +35,7 @@ type Player = {
     height: number,
     width: number,
     HP: number,
+    input: string,
 }
 type Movement = {
     up: boolean,
@@ -92,6 +93,7 @@ export function Game() {
             height: HEIGHT,
             width: WIDTH,
             HP: HP,
+            input: ''
         },
         scores: 0,
         typing: false,
@@ -109,7 +111,6 @@ export function Game() {
         leftVelocity: 0,
         rightVelocity: 0,
     })
-    // const [input, setInput] = useState()
 
     const stateRef = useRef<GameState>(state)
     const movementRef = useRef<Movement>(movement)
@@ -123,6 +124,21 @@ export function Game() {
         const movement = movementRef.current
         const keyDOWN = (e: KeyboardEvent) => {
             const state = stateRef.current
+            
+            if (state.typing) {
+                if (e.key.length === 1) {
+                    setState(prev => ({
+                        ...prev,
+                        player: { ...prev.player, input: prev.player.input + e.key }
+                    }))
+                } else if (e.code === 'Backspace') {
+                    setState(prev => ({
+                        ...prev,
+                        player: { ...prev.player, input: prev.player.input.slice(0, -1) }
+                    }))
+                }
+            }
+            
             if (!state.typing) {
                 if (e.code === 'KeyA') {
                     setMovement(prev => {
@@ -140,11 +156,9 @@ export function Game() {
                         return prev
                     })
                 }
-                if (e.code === 'KeyW') {
-                    setMovement(prev => ({ ...prev, up: true }))
-                }
-                if (e.code === 'Space' || 'KeyW') {
-                    setMovement(prev => prev.jump ? prev : ({ ...prev, jump: true }))
+                
+                if (e.code === 'Space') {
+                    setMovement(prev => prev.up ? prev : ({ ...prev, up: true }))
                 }
             }
 
@@ -287,19 +301,26 @@ export function Game() {
         )
     }
     const TextBox = () => {
-        const TBpadding: number = 20
+        const TBmargin: number = 50
         if (state.typing) {
             return (
                 <div
                     className={styles.textBox}
                     style={{
-                        top: toRem(state.player.y - (TBpadding + THEIGHT)),
-                        left: toRem(state.player.x - TWIDTH / 2 + state.player.width / 2),
+                        top: toRem(state.player.y - TBmargin - THEIGHT),
+                        left: toRem(state.player.x - TWIDTH / 2),
                         height: toRem(THEIGHT),
                         width: toRem(TWIDTH),
-                        backgroundColor: 'white'
+                        backgroundColor: 'white',
+                        display: 'flex',
+                        alignItems: 'left',
+                        justifyContent: 'left',
+                        fontSize: '1rem',
+                        color: 'black',
+                        padding: '1rem'
                     }}
                 >
+                    {state.player.input}
                 </div>
             )
         }
