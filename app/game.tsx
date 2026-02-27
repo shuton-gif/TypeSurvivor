@@ -1,5 +1,6 @@
 'use client'
 import styles from './game.module.css';
+import { Vocabulary } from './spells';
 import { useState, useEffect, useRef } from "react";
 //------------ CSS ---------------
 //BACK GROUND
@@ -13,15 +14,20 @@ const THEIGHT: number = 50
 const TWIDTH: number = 200
 
 //------------ ENERTIA -------------
-const VELOCITY: number = 5;
-const GRAVITY: number = 10;
+const TOPSPEED: number = 8;
+const ACCELERATION: number = 10 * 0.06
+const VELOCITY: number = 2;
+const JUMPPOWER: number = 4;
+const FRICTION: number = 10 * 0.06;
+const GRAVITY: number = 10 * 0.06;
 const SLOW: number = 0.7; //30% slow
 
 //----------- PLAYER -------------
 const HEIGHT: number = 60;
 const WIDTH: number = 30;
+const INITIALX: number = 300;
+const GROUNDED: number = GTOP - HEIGHT;
 const HP: number = 10;
-
 
 type Player = {
     x: number,
@@ -35,7 +41,11 @@ type Movement = {
     down: boolean,
     left: boolean,
     right: boolean,
-    jump: boolean
+    jump: boolean,
+    airBorn: boolean,
+    jumpVelocity: number,
+    leftVelocity: number,
+    rightVelocity: number,
 }
 type Enemy = {
     x: number,
@@ -70,12 +80,15 @@ const intersected = function (ax: number, ay: number, bx: number, by: number, cx
 const toRem = (param: number, scale?: number): string => {
     return scale != null ? `${(param / 16) * scale}rem` : `${param / 16}rem`
 }
+const absolute = (param: number): number => {
+    return param < 0 ? -param : param
+}
 
 export function Game() {
     const [state, setState] = useState<GameState>({
         player: {
-            x: 0,
-            y: GTOP - HEIGHT,
+            x: INITIALX,
+            y: GROUNDED,
             height: HEIGHT,
             width: WIDTH,
             HP: HP,
@@ -91,6 +104,10 @@ export function Game() {
         left: false,
         right: false,
         jump: false,
+        airBorn: false,
+        jumpVelocity: 0,
+        leftVelocity: 0,
+        rightVelocity: 0,
     })
     // const [input, setInput] = useState()
 
@@ -104,28 +121,39 @@ export function Game() {
 
     useEffect(() => {
         const movement = movementRef.current
-        const state = stateRef.current
         const keyDOWN = (e: KeyboardEvent) => {
-            if (e.code === 'KeyA') {
-                setMovement({
-                    ...movement,
-                    left: true
-                })
+            const state = stateRef.current
+            if (!state.typing) {
+                if (e.code === 'KeyA') {
+                    setMovement(prev => {
+                        if (!prev.left && !movement.airBorn) {
+                            return { ...prev, left: true, right: false }
+                        }
+                        return prev
+                    })
+                }
+                if (e.code === 'KeyD') {
+                    setMovement(prev => {
+                        if (!prev.right && !movement.airBorn) {
+                            return { ...prev, right: true, left: false }
+                        }
+                        return prev
+                    })
+                }
+                if (e.code === 'KeyW') {
+                    setMovement(prev => ({ ...prev, up: true }))
+                }
+                if (e.code === 'Space' || 'KeyW') {
+                    setMovement(prev => prev.jump ? prev : ({ ...prev, jump: true }))
+                }
             }
-            if (e.code === 'KeyD') {
-                setMovement({
-                    ...movement,
-                    right: true
-                })
-            }
+
             if (e.code === 'Enter') {
-                setState({
-                    ...state,
-                    typing: true ? !state.typing : false ? state.typing : false,
+                setState(prev => {
+                    const newTyping = !prev.typing
+                    return { ...prev, typing: newTyping }
                 })
-            }
-            if (e.code === 'Space') {
-                setMovement(prev => prev.jump ? prev : ({ ...prev, jump: true }))
+                setMovement(prev => ({ ...prev, up: false, left: false, right: false}))
             }
         }
 
@@ -147,26 +175,80 @@ export function Game() {
             let newMovement = {
                 ...movement,
             }
+            let s: number = newState.scale;
 
-            // MOVEMENT ---------------------------------
-            if (newMovement.left) {
-                newState.player.x -= VELOCITY
-            }
-            if (newMovement.right) {
-                newState.player.x += VELOCITY
-            }
-            if (!newMovement.jump) {
-                if (newMovement.jump) {
-                    newState = {
-                        ...newState,
-                        player: {
-                            ...newState.player,
-                            y: newState.player.y + VELOCITY
-                        }
+            if (newMovement.left && !newMovement.airBorn) {
+                newMovement.leftVelocity += VELOCITY
+                if (newMovement.leftVelocity < TOPSPEED) {
+                    newMovement.leftVelocity += ACCELERATION
+                } else {
+                    newMovement.leftVelocity = TOPSPEED
+                }
+                newState.player.x -= newMovement.leftVelocity * s
+            } else {
+                if (newMovement.leftVelocity > 0) {
+                    if (!newMovement.airBorn) {
+                        newMovement.leftVelocity -= FRICTION
+                    }
+                    if (newMovement.leftVelocity < 0.25) {
+                        newMovement.leftVelocity = 0
+                    } else {
+                        newState.player.x -= newMovement.leftVelocity * s
                     }
                 }
             }
-            console.log(toRem(newState.player.y))
+
+            if (newMovement.right && !newMovement.airBorn) {
+                newMovement.rightVelocity += VELOCITY
+                if (newMovement.rightVelocity < TOPSPEED) {
+                    newMovement.rightVelocity += ACCELERATION
+                } else {
+                    newMovement.rightVelocity = TOPSPEED
+                }
+                newState.player.x += newMovement.rightVelocity * s
+            } else {
+                if (newMovement.rightVelocity > 0) {
+                    if (!newMovement.airBorn) {
+                        newMovement.rightVelocity -= FRICTION
+                    }
+                    if (newMovement.rightVelocity < 0.25) {
+                        newMovement.rightVelocity = 0
+                    } else {
+                        newState.player.x += newMovement.rightVelocity * s
+                    }
+                }
+            }
+
+            // console.log('Left vel:', newMovement.leftVelocity, 'Right vel:', newMovement.rightVelocity)
+
+            // JUMPING ---------------------------------
+            if (!newMovement.airBorn && newState.player.y === GROUNDED && newMovement.up) {
+                newMovement.airBorn = true
+                newMovement.jumpVelocity = JUMPPOWER * 2
+            }
+
+            if (newMovement.airBorn) {
+                if (newMovement.up) {
+                    newState.player.y -= newMovement.jumpVelocity
+                    newMovement.jumpVelocity -= GRAVITY * s
+                    if (newMovement.jumpVelocity <= 0) {
+                        newMovement.up = false
+                    }
+                }
+                if (!newMovement.up) {
+                    newMovement.jumpVelocity += GRAVITY * s
+                    newState.player.y += newMovement.jumpVelocity
+                    if (newState.player.y >= GROUNDED) {
+                        newState.player.y = GROUNDED
+                        newMovement.airBorn = false
+                        newMovement.up = false
+                    }
+                }
+            }
+            // console.log(newState.typing)
+            // console.log(newMovement.left)
+            // console.log(newMovement.right)
+            // console.log(toRem(newState.player.y))
             // console.log(newMovement.left)
             // console.log(newMovement.right)
             setState(newState)
@@ -176,7 +258,7 @@ export function Game() {
         window.addEventListener('keydown', keyDOWN)
         window.addEventListener('keyup', keyUP)
 
-        const timerId = setInterval(handleInterval, 60)
+        const timerId = setInterval(handleInterval, 32)
 
         return () => {
             window.removeEventListener('keydown', keyDOWN)
@@ -212,9 +294,10 @@ export function Game() {
                     className={styles.textBox}
                     style={{
                         top: toRem(state.player.y - (TBpadding + THEIGHT)),
-                        left: toRem(state.player.x),
+                        left: toRem(state.player.x - TWIDTH / 2 + state.player.width / 2),
                         height: toRem(THEIGHT),
                         width: toRem(TWIDTH),
+                        backgroundColor: 'white'
                     }}
                 >
                 </div>
