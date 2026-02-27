@@ -23,8 +23,8 @@ const GRAVITY: number = 10 * 0.1;
 const SLOW: number = 0.7; //30% slow
 
 //----------- PLAYER -------------
-const HEIGHT: number = 80;
-const WIDTH: number = 60;
+const HEIGHT: number = 60;
+const WIDTH: number = 42.6;
 const INITIALX: number = 300;
 const GROUNDED: number = GTOP - HEIGHT;
 const HP: number = 10;
