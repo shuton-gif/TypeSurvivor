@@ -19,12 +19,12 @@ const ACCELERATION: number = 10 * 0.06
 const VELOCITY: number = 2;
 const JUMPPOWER: number = 4;
 const FRICTION: number = 10 * 0.06;
-const GRAVITY: number = 10 * 0.06;
+const GRAVITY: number = 10 * 0.1;
 const SLOW: number = 0.7; //30% slow
 
 //----------- PLAYER -------------
-const HEIGHT: number = 60;
-const WIDTH: number = 30;
+const HEIGHT: number = 80;
+const WIDTH: number = 60;
 const INITIALX: number = 300;
 const GROUNDED: number = GTOP - HEIGHT;
 const HP: number = 10;
