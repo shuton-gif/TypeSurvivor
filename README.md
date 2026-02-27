@@ -9,6 +9,28 @@ Japanese-English translation survival game
 
 ### Installation
 
+#### For Windows Users
+
+1. Clone the repository:
+```cmd
+git clone https://github.com/shuton-gif/TypeSurvivor.git
+cd TypeSurvivor
+```
+
+2. Install dependencies:
+```cmd
+npm install
+```
+
+3. Run the development server:
+```cmd
+npm run dev
+```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to play the game.
+
+#### For macOS/Linux Users
+
 1. Clone the repository:
 ```bash
 git clone https://github.com/shuton-gif/TypeSurvivor.git
