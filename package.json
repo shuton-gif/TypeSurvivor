@@ -1,0 +1,50 @@
+{
+  "name": "typesurvivor",
+  "version": "1.0.0",
+  "description": "PBL typing game",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shuton-gif/TypeSurvivor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shuton-gif/TypeSurvivor/issues"
+  },
+  "homepage": "https://github.com/shuton-gif/TypeSurvivor#readme",
+  "dependencies": {
+    "big.js": "^6.2.2",
+    "dayjs": "^1.11.13",
+    "next": "15.1.3",
+    "primeicons": "^7.0.0",
+    "primereact": "9.6.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "save-dev": "^0.0.1-security",
+    "sql-template-strings": "^2.2.2",
+    "ua-parser-js": "^2.0.0",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/big.js": "^6.2.2",
+    "@types/node": "^20",
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/ua-parser-js": "^0.7.39",
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.3",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,29 @@
+.BGcontainer {
+    position: absolute;
+    width: 100%;
+}
+
+.backGround {
+    background-color: darkseagreen;
+    background-repeat: repeat-x;
+    background-position: center bottom;
+}
+
+.ground {
+    background-color: chocolate;
+    border-top: 0.3125rem solid brown;
+}
+
+.player {
+    background-color: red;
+    z-index: 1;
+    position: absolute;
+}
+
+.textBox {
+    position: absolute;
+    border-radius: 0.625rem;
+    border: 0.0625rem solid black;
+    box-shadow: 0.3125rem 0.3125rem 0.0625rem rgb(0, 0, 0, 0.5);
+    z-index: 1;
+}
