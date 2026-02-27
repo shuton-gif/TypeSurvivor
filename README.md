@@ -1,4 +1,4 @@
-# TypeSurvivor
+# TypeKingdom
 Japanese-English translation survival game
 
 ## Getting Started
