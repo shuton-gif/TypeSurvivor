@@ -167,7 +167,7 @@ export function Game() {
                 }
 
                 if (e.code === 'Space') {
-                    setMovement(prev => prev.up ? prev : ({ ...prev, up: true }))
+                    setMovement(prev => (prev.up || prev.airBorn) ? prev : ({ ...prev, up: true }))
                 }
             }
 
