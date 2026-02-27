@@ -1,6 +1,6 @@
 'use client'
 import styles from './game.module.css';
-import { VOCAB , handleRomaji} from './spells';
+import { VOCAB, handleRomaji } from './spells';
 import { useState, useEffect, useRef } from "react";
 //------------ CSS ---------------
 //BACK GROUND
@@ -68,6 +68,7 @@ type GameState = {
     typing: boolean,
     screen?: Screen,
     scale: number,
+    romaji: boolean
 }
 
 
@@ -94,12 +95,13 @@ export function Game() {
             height: HEIGHT,
             width: WIDTH,
             HP: HP,
-            input: ''
+            input: '',
         },
         scores: 0,
         typing: false,
         screen: { x: 0, y: 0 },
-        scale: 1
+        scale: 1,
+        romaji: false,
     })
     const [movement, setMovement] = useState<Movement>({
         up: false,
@@ -125,7 +127,7 @@ export function Game() {
         const movement = movementRef.current
         const keyDOWN = (e: KeyboardEvent) => {
             const state = stateRef.current
-            
+
             if (state.typing) {
                 if (e.key.length === 1) {
                     setState(prev => ({
@@ -138,8 +140,14 @@ export function Game() {
                         player: { ...prev.player, input: prev.player.input.slice(0, -1) }
                     }))
                 }
+                if (e.code === 'LShift') {
+                    setState(prev => {
+                        const newRomaji = !prev.romaji
+                        return { ...prev, romaji: newRomaji }
+                    })
+                }
             }
-            
+
             if (!state.typing) {
                 if (e.code === 'KeyA') {
                     setMovement(prev => {
@@ -157,7 +165,7 @@ export function Game() {
                         return prev
                     })
                 }
-                
+
                 if (e.code === 'Space') {
                     setMovement(prev => prev.up ? prev : ({ ...prev, up: true }))
                 }
@@ -168,7 +176,7 @@ export function Game() {
                     const newTyping = !prev.typing
                     return { ...prev, typing: newTyping }
                 })
-                setMovement(prev => ({ ...prev, up: false, left: false, right: false}))
+                setMovement(prev => ({ ...prev, up: false, left: false, right: false }))
             }
         }
 

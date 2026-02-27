@@ -230,7 +230,7 @@ export const VOCAB: EHKKR[] = [
 export function handleRomaji(input: string, outputType: number): string {
     for (const vocab of VOCAB) {
         if (vocab.Ro.includes(input.toLowerCase())) {
-            return outputType == 0 ? vocab.En : outputType == 1 ? vocab. Hi : outputType == 2 ? vocab.Kat : outputType == 3 ? vocab.Kan : vocab.En
+            return outputType == 0 ? vocab.En : outputType == 1 ? vocab. Hi : outputType == 2 ? vocab.Kat : (outputType == 3 && vocab.Kan != null) ? vocab.Kan : vocab.En
         }
     }
     return `INVALID ENTRY: ${input}`
