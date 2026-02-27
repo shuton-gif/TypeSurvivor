@@ -31,3 +31,4 @@
 ## IDEA 
 - maybe use spelling for making walls and weapons. ex: 前方十メートルに石の壁、鉄の剣２本
 - simplied SOV grammar. ex: 私　壁　作る、　攻撃、　たね、　植える
+- make Player animation
