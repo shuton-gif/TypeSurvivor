@@ -6,6 +6,9 @@ Player moves with physics, enters typing mode to translate vocabulary
 Level-based difficulty system (1-5 scale)
 Next.js 15 with app router, CSS modules, custom fonts
 
+## OUTPUT STYLE
+no Emoji, verbose webbings
+
 ## REQUIREMENTS
 read /TypeSurvivor/package.json
 

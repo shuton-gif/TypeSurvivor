@@ -4,50 +4,64 @@ Japanese-English translation survival game
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn package manager
+- Node.js 18+ (includes npm)
+- Git
 
 ### Installation
 
 #### For Windows Users
 
-1. Clone the repository:
+1. Install Node.js:
+   - Download from [nodejs.org](https://nodejs.org/)
+   - Run the installer (npm is included automatically)
+   - Verify: `node --version` and `npm --version`
+
+2. Clone the repository:
 ```cmd
 git clone https://github.com/shuton-gif/TypeSurvivor.git
 cd TypeSurvivor
 ```
 
-2. Install dependencies:
+3. Install dependencies:
 ```cmd
 npm install
 ```
 
-3. Run the development server:
+4. Run the development server:
 ```cmd
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to play the game.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to play the game.
 
 #### For macOS/Linux Users
 
-1. Clone the repository:
+1. Install Node.js:
+```bash
+# Using Homebrew (recommended)
+brew install node
+
+# Or download from nodejs.org
+# Verify: node --version && npm --version
+```
+
+2. Clone the repository:
 ```bash
 git clone https://github.com/shuton-gif/TypeSurvivor.git
 cd TypeSurvivor
 ```
 
-2. Install dependencies:
+3. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Run the development server:
+4. Run the development server:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to play the game.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to play the game.
 
 ### Available Scripts
 

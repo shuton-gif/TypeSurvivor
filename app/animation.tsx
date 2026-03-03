@@ -41,31 +41,65 @@ function Grid() {
     //  6 : 4.26 
 }
 
-export function Charactor({ gameState }: AnimatorProps) {
-    const [bone, setBone] = useState<BodyParts>({
-        head: {
-            boneStart: { x: 0, y: 0 },
-            boneEnd: { x: 0, y: 0 }
+export function PlayerAnimator({ gameState }: AnimatorProps) {
+    //height 6
+    //width 4.26
+    //head 3
+    //torso 3
+    const {
+        player: {
+            x,
+            y,
+            height,
+            width,
+            HP,
+            input,
+            movement: {
+                up,
+                down,
+                left,
+                right,
+                jump,
+                airBorn,
+                jumpVelocity,
+                leftVelocity,
+                rightVelocity,
+            }
         },
-        torso: {
-            boneStart: { x: 0, y: 0 },
-            boneEnd: { x: 0, y: 0 }
-        }
-    })
+        enemy,
+        scores,
+        typing,
+        screen,
+        scale,
+        romaji,
+    } = gameState;
+    const CHARAC_CENTER_HEIGHT = height / 2;
+    const CHARAC_CENTER_WIDTH = width / 2;
+    // const [bone, setBone] = useState<BodyParts>({
+    //     head: {
+    //         boneStart: { x: 0, y: 0 },
+    //         boneEnd: { x: 0, y: 0 }
+    //     },
+    //     torso: {
+    //         boneStart: { x: 0, y: 0 },
+    //         boneEnd: { x: 0, y: 0 }
+    //     }
+    // })
 
     function Head() {
-        const eyePosition = (headPosiotion: number, headSize: number): number[] => {
-            const leftEye: number = headPosiotion / 2 - headSize * 0.2;
-            const rightEye: number = headPosiotion / 2 + headSize * 0.2;
-            return [leftEye, rightEye]
-        }
+        // const eyePosition = (headPosiotion: number, headSize: number): number[] => {
+        //     const leftEye: number = headPosiotion / 2 - headSize * 0.2;
+        //     const rightEye: number = headPosiotion / 2 + headSize * 0.2;
+        //     return [leftEye, rightEye]
+        // }
         // MOVING LEFT ------------------------------
-        if (gameState.player.movement.left) {
+        if (left) {
             return (
-                <div style={{
-                    backgroundColor: 'red',
-                    height: toRem(gameState.player.height / 2),
-                    top: toRem(gameState.player.y)
+                <div className={`${styles.head} ${styles.headRockLeft}`} style={{
+                    backgroundColor: 'white',
+                    height: toRem(height / 2),
+                    width: toRem(width),
+                    top: toRem(y),
                 }}>
                     <div className={styles.eyes}
                         style={{
@@ -75,10 +109,13 @@ export function Charactor({ gameState }: AnimatorProps) {
                 </div>
             )
             // MOVING RIGHT ------------------------------
-        } else if (gameState.player.movement.right) {
+        } else if (right) {
             return (
-                <div style={{
-                    backgroundColor: 'red'
+                <div className={`${styles.head} ${styles.headRockRight}`} style={{
+                    backgroundColor: 'white',
+                    height: toRem(height / 2),
+                    width: toRem(width),
+                    top: toRem(y),
                 }}>
                     <div className={styles.eyes}>
                     </div>
@@ -88,7 +125,8 @@ export function Charactor({ gameState }: AnimatorProps) {
         } else {
             return (
                 <div style={{
-                    backgroundColor: 'red'
+                    backgroundColor: 'white',
+                    
                 }}>
                     <div className={styles.eyes}>
                     </div>
@@ -100,30 +138,49 @@ export function Charactor({ gameState }: AnimatorProps) {
     function Torso() {
         return (
             <div style={{
-                backgroundColor: 'blue',
-                position: 'absolute'
-            }}>
-            </div>
+                backgroundColor: 'white',
+                top: toRem(height/2), //middle of the body... head : torso = 1 : 1
+                height: toRem(height/2),
+                width: toRem(width)
+            }}></div>
         )
+    }
+
+    function Player() {
+        if (!airBorn) {
+            if (left) {
+                return (
+                    <>
+                        <Head />
+                        <Torso />
+                    </>
+                )
+            } else if (right) {
+                return (
+                    <>
+                        <Head />
+                        <Torso />
+                    </>
+                )
+            } 
+        }
     }
 
     return (
         <div
             className={styles.charContainer}
             style={{
-                top: `${toRem(gameState.player.y)}`,
-                left: toRem(gameState.player.x),
-                height: toRem(gameState.player.height),
-                width: toRem(gameState.player.width),
-                backgroundSize: toRem(gameState.player.height) + ' ' + toRem(gameState.player.width)
+                top: toRem(y),
+                left: toRem(x),
+                height: toRem(height),
+                width: toRem(width),
+                backgroundSize: toRem(height) + ' ' + toRem(width)
             }}>
-            <div className={styles.body}>
-                <Head />
-
-            </div>
         </div>
     )
 }
+
+
 
 export function GrassAnimator(playSpeed: number) {
     function GrassStrip(height: number, width: number, color: string) {
