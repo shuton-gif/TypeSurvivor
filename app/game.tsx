@@ -4,10 +4,10 @@ import { VOCAB, handleRomaji } from './spells';
 import { useState, useEffect, useRef } from "react";
 //------------ CSS ---------------
 //BACK GROUND
-const BGTOP: number = 0
+export const BGTOP: number = 0
 const BGHEIGHT: number = 450
 //GROUND ------------------
-const GTOP: number = 450
+export const GTOP: number = 450
 const GHEIGHT: number = 150
 //TEXT BOX -----------------
 const THEIGHT: number = 100
@@ -29,14 +29,6 @@ const INITIALX: number = 300;
 const GROUNDED: number = GTOP - HEIGHT;
 const HP: number = 10;
 
-type Player = {
-    x: number,
-    y: number,
-    height: number,
-    width: number,
-    HP: number,
-    input: string,
-}
 type Movement = {
     up: boolean,
     down: boolean,
@@ -47,6 +39,15 @@ type Movement = {
     jumpVelocity: number,
     leftVelocity: number,
     rightVelocity: number,
+}
+type Player = {
+    x: number,
+    y: number,
+    height: number,
+    width: number,
+    HP: number,
+    input: string,
+    movement: Movement
 }
 type Enemy = {
     x: number,
@@ -61,14 +62,14 @@ type Screen = {
     y: number
 }
 
-type GameState = {
+export type GameState = {
     player: Player,
     enemy?: Enemy[],
     scores: number,
     typing: boolean,
     screen?: Screen,
     scale: number,
-    romaji: boolean
+    romaji: boolean,
 }
 
 
@@ -79,7 +80,7 @@ const intersected = function (ax: number, ay: number, bx: number, by: number, cx
     const td = (ax - bx) * (dy - ay) + (ay - by) * (ax - dx);
     return tc * td <= 0 && ta * tb <= 0;
 }
-const toRem = (param: number, scale?: number): string => {
+export const toRem = (param: number, scale?: number): string => {
     return scale != null ? `${(param / 16) * scale}rem` : `${param / 16}rem`
 }
 
@@ -96,6 +97,17 @@ export function Game() {
             width: WIDTH,
             HP: HP,
             input: '',
+            movement: {
+                up: false,
+                down: false,
+                left: false,
+                right: false,
+                jump: false,
+                airBorn: false,
+                jumpVelocity: 0,
+                leftVelocity: 0,
+                rightVelocity: 0,
+            }
         },
         scores: 0,
         typing: false,
@@ -103,30 +115,18 @@ export function Game() {
         scale: 1,
         romaji: false,
     })
-    const [movement, setMovement] = useState<Movement>({
-        up: false,
-        down: false,
-        left: false,
-        right: false,
-        jump: false,
-        airBorn: false,
-        jumpVelocity: 0,
-        leftVelocity: 0,
-        rightVelocity: 0,
-    })
-
     const stateRef = useRef<GameState>(state)
-    const movementRef = useRef<Movement>(movement)
 
     useEffect(() => {
         stateRef.current = state
-        movementRef.current = movement
     })
 
     useEffect(() => {
-        const movement = movementRef.current
         const keyDOWN = (e: KeyboardEvent) => {
             const state = stateRef.current
+            let newState = {
+                ...state,
+            }
 
             if (state.typing) {
                 if (e.key.length === 1) {
@@ -150,24 +150,53 @@ export function Game() {
 
             if (!state.typing) {
                 if (e.code === 'KeyA') {
-                    setMovement(prev => {
-                        if (!prev.left && !movement.airBorn) {
-                            return { ...prev, left: true, right: false }
+                    setState(prev => {
+                        if (!prev.player.movement.left && !state.player.movement.airBorn) {
+                            return { 
+                                ...prev, 
+                                player: { 
+                                    ...prev.player, 
+                                    movement: { 
+                                        ...prev.player.movement, 
+                                        left: true, 
+                                        right: false
+                                    } 
+                                } 
+                            }
                         }
                         return prev
                     })
                 }
                 if (e.code === 'KeyD') {
-                    setMovement(prev => {
-                        if (!prev.right && !movement.airBorn) {
-                            return { ...prev, right: true, left: false }
+                    setState(prev => {
+                        if (!prev.player.movement.right && !state.player.movement.airBorn) {
+                            return { 
+                                ...prev, 
+                                player: { 
+                                    ...prev.player, 
+                                    movement: { 
+                                        ...prev.player.movement, 
+                                        right: true, 
+                                        left: false 
+                                    } 
+                                } 
+                            }
                         }
                         return prev
                     })
                 }
 
                 if (e.code === 'Space') {
-                    setMovement(prev => (prev.up || prev.airBorn) ? prev : ({ ...prev, up: true }))
+                    setState(prev => (prev.player.movement.up || prev.player.movement.airBorn) ? prev : ({ 
+                        ...prev, 
+                        player: { 
+                            ...prev.player, 
+                            movement: { 
+                                ...prev.player.movement, 
+                                up: true 
+                            } 
+                        } 
+                    }))
                 }
             }
 
@@ -176,106 +205,125 @@ export function Game() {
                     const newTyping = !prev.typing
                     return { ...prev, typing: newTyping }
                 })
-                setMovement(prev => ({ ...prev, up: false, left: false, right: false }))
+                setState(prev => ({ 
+                    ...prev, 
+                    player: { 
+                        ...prev.player, 
+                        movement: { 
+                            ...prev.player.movement, 
+                            up: false, 
+                            left: false, 
+                            right: false 
+                        } 
+                    } 
+                }))
             }
         }
 
         const keyUP = (e: KeyboardEvent) => {
             if (e.code === 'KeyA') {
-                setMovement(prev => ({ ...prev, left: false }))
+                setState(prev => ({ 
+                    ...prev, 
+                    player: { 
+                        ...prev.player, 
+                        movement: { 
+                            ...prev.player.movement, 
+                            left: false 
+                        } 
+                    } 
+                }))
             }
             if (e.code === 'KeyD') {
-                setMovement(prev => ({ ...prev, right: false }))
+                setState(prev => ({ 
+                    ...prev, 
+                    player: { 
+                        ...prev.player, 
+                        movement: { 
+                            ...prev.player.movement, 
+                            right: false 
+                        } 
+                    } 
+                }))
             }
         }
 
         const handleInterval = () => {
             const state = stateRef.current
-            const movement = movementRef.current
             let newState = {
                 ...state,
             }
-            let newMovement = {
-                ...movement,
-            }
             let s: number = newState.scale;
+            let move = newState.player.movement
 
-            if (newMovement.left && !newMovement.airBorn) {
-                newMovement.leftVelocity += VELOCITY
-                if (newMovement.leftVelocity < TOPSPEED) {
-                    newMovement.leftVelocity += ACCELERATION
+            if (move.left && !move.airBorn) {
+                move.leftVelocity += VELOCITY
+                if (move.leftVelocity < TOPSPEED) {
+                    move.leftVelocity += ACCELERATION
                 } else {
-                    newMovement.leftVelocity = TOPSPEED
+                    move.leftVelocity = TOPSPEED
                 }
-                newState.player.x -= newMovement.leftVelocity * s
+                newState.player.x -= move.leftVelocity * s
             } else {
-                if (newMovement.leftVelocity > 0) {
-                    if (!newMovement.airBorn) {
-                        newMovement.leftVelocity -= FRICTION
+                if (move.leftVelocity > 0) {
+                    if (!move.airBorn) {
+                        move.leftVelocity -= FRICTION
                     }
-                    if (newMovement.leftVelocity < 0.25) {
-                        newMovement.leftVelocity = 0
+                    if (move.leftVelocity < 0.25) {
+                        move.leftVelocity = 0
                     } else {
-                        newState.player.x -= newMovement.leftVelocity * s
+                        newState.player.x -= move.leftVelocity * s
                     }
                 }
             }
 
-            if (newMovement.right && !newMovement.airBorn) {
-                newMovement.rightVelocity += VELOCITY
-                if (newMovement.rightVelocity < TOPSPEED) {
-                    newMovement.rightVelocity += ACCELERATION
+            if (move.right && !move.airBorn) {
+                move.rightVelocity += VELOCITY
+                if (move.rightVelocity < TOPSPEED) {
+                    move.rightVelocity += ACCELERATION
                 } else {
-                    newMovement.rightVelocity = TOPSPEED
+                    move.rightVelocity = TOPSPEED
                 }
-                newState.player.x += newMovement.rightVelocity * s
+                newState.player.x += move.rightVelocity * s
             } else {
-                if (newMovement.rightVelocity > 0) {
-                    if (!newMovement.airBorn) {
-                        newMovement.rightVelocity -= FRICTION
+                if (move.rightVelocity > 0) {
+                    if (!move.airBorn) {
+                        move.rightVelocity -= FRICTION
                     }
-                    if (newMovement.rightVelocity < 0.25) {
-                        newMovement.rightVelocity = 0
+                    if (move.rightVelocity < 0.25) {
+                        move.rightVelocity = 0
                     } else {
-                        newState.player.x += newMovement.rightVelocity * s
+                        newState.player.x += move.rightVelocity * s
                     }
                 }
             }
 
-            // console.log('Left vel:', newMovement.leftVelocity, 'Right vel:', newMovement.rightVelocity)
+            // console.log('Left vel:', move.leftVelocity, 'Right vel:', move.rightVelocity)
 
             // JUMPING ---------------------------------
-            if (!newMovement.airBorn && newState.player.y === GROUNDED && newMovement.up) {
-                newMovement.airBorn = true
-                newMovement.jumpVelocity = JUMPPOWER * 2
+            if (!move.airBorn && newState.player.y === GROUNDED && move.up) {
+                move.airBorn = true
+                move.jumpVelocity = JUMPPOWER * 2
             }
 
-            if (newMovement.airBorn) {
-                if (newMovement.up) {
-                    newState.player.y -= newMovement.jumpVelocity
-                    newMovement.jumpVelocity -= GRAVITY * s
-                    if (newMovement.jumpVelocity <= 0) {
-                        newMovement.up = false
+            if (move.airBorn) {
+                if (move.up) {
+                    newState.player.y -= move.jumpVelocity
+                    move.jumpVelocity -= GRAVITY * s
+                    if (move.jumpVelocity <= 0) {
+                        move.up = false
                     }
                 }
-                if (!newMovement.up) {
-                    newMovement.jumpVelocity += GRAVITY * s
-                    newState.player.y += newMovement.jumpVelocity
+                if (!move.up) {
+                    move.jumpVelocity += GRAVITY * s
+                    newState.player.y += move.jumpVelocity
                     if (newState.player.y >= GROUNDED) {
                         newState.player.y = GROUNDED
-                        newMovement.airBorn = false
-                        newMovement.up = false
+                        move.airBorn = false
+                        move.up = false
                     }
                 }
             }
-            // console.log(newState.typing)
-            // console.log(newMovement.left)
-            // console.log(newMovement.right)
-            // console.log(toRem(newState.player.y))
-            // console.log(newMovement.left)
-            // console.log(newMovement.right)
             setState(newState)
-            setMovement(newMovement)
         }
 
         window.addEventListener('keydown', keyDOWN)
