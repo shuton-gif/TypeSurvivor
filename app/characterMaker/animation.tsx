@@ -1,7 +1,7 @@
 'use client'
 import { JSX, useState } from 'react'
 import styles from './animation.module.css'
-import { GameState, toRem, GTOP } from './game'
+import { GameState, toRem } from '../game/game'
 
 type Bone = {
     boneStart: { x: number, y: number },
@@ -17,28 +17,6 @@ type BodyParts = {
 
 type AnimatorProps = {
     gameState: GameState
-}
-
-function QuadTyle(top: number, height: number, width: number, color: string = 'black') {
-    return (
-        <div style={{
-            position: 'absolute',
-            backgroundColor: color,
-            top: toRem(top),
-            height: toRem(height),
-            width: toRem(width)
-        }}></div>
-    )
-}
-
-function Grid() {
-    // ex) player 
-    // const HEIGHT: number = 60; 
-    // const WIDTH: number = 42.6;
-    // if i want 10 x grids that i can put pixels onto
-    // and 10 y grids 
-    // one grid will be the size of
-    //  6 : 4.26 
 }
 
 export function PlayerAnimator({ gameState }: AnimatorProps) {

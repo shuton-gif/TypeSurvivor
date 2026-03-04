@@ -4,10 +4,10 @@ import { VOCAB, handleRomaji } from './spells';
 import { useState, useEffect, useRef } from "react";
 //------------ CSS ---------------
 //BACK GROUND
-export const BGTOP: number = 0
+const BGTOP: number = 0
 const BGHEIGHT: number = 450
 //GROUND ------------------
-export const GTOP: number = 450
+const GTOP: number = 450
 const GHEIGHT: number = 150
 //TEXT BOX -----------------
 const THEIGHT: number = 100
@@ -23,11 +23,20 @@ const GRAVITY: number = 10 * 0.1;
 const SLOW: number = 0.7; //30% slow
 
 //----------- PLAYER -------------
-const HEIGHT: number = 60;
-const WIDTH: number = 42.6;
+const HEIGHT_RATIO: number = 300;
+const WIDTH_RATIO: number = 213;
+const HEIGHT: number = HEIGHT_RATIO / 5;
+const WIDTH: number = WIDTH_RATIO / 5;
 const INITIALX: number = 300;
 const GROUNDED: number = GTOP - HEIGHT;
 const HP: number = 10;
+
+export const GAME_CONFIG = {
+    BGTOP, BGHEIGHT, GTOP, GHEIGHT, THEIGHT, TWIDTH,
+    TOPSPEED, ACCELERATION, VELOCITY, JUMPPOWER, FRICTION, GRAVITY, SLOW,
+    HEIGHT_RATIO, WIDTH_RATIO, HEIGHT, WIDTH, INITIALX, GROUNDED, HP
+} as const
+
 
 type Movement = {
     up: boolean,
@@ -152,16 +161,16 @@ export function Game() {
                 if (e.code === 'KeyA') {
                     setState(prev => {
                         if (!prev.player.movement.left && !state.player.movement.airBorn) {
-                            return { 
-                                ...prev, 
-                                player: { 
-                                    ...prev.player, 
-                                    movement: { 
-                                        ...prev.player.movement, 
-                                        left: true, 
+                            return {
+                                ...prev,
+                                player: {
+                                    ...prev.player,
+                                    movement: {
+                                        ...prev.player.movement,
+                                        left: true,
                                         right: false
-                                    } 
-                                } 
+                                    }
+                                }
                             }
                         }
                         return prev
@@ -170,16 +179,16 @@ export function Game() {
                 if (e.code === 'KeyD') {
                     setState(prev => {
                         if (!prev.player.movement.right && !state.player.movement.airBorn) {
-                            return { 
-                                ...prev, 
-                                player: { 
-                                    ...prev.player, 
-                                    movement: { 
-                                        ...prev.player.movement, 
-                                        right: true, 
-                                        left: false 
-                                    } 
-                                } 
+                            return {
+                                ...prev,
+                                player: {
+                                    ...prev.player,
+                                    movement: {
+                                        ...prev.player.movement,
+                                        right: true,
+                                        left: false
+                                    }
+                                }
                             }
                         }
                         return prev
@@ -187,15 +196,15 @@ export function Game() {
                 }
 
                 if (e.code === 'Space') {
-                    setState(prev => (prev.player.movement.up || prev.player.movement.airBorn) ? prev : ({ 
-                        ...prev, 
-                        player: { 
-                            ...prev.player, 
-                            movement: { 
-                                ...prev.player.movement, 
-                                up: true 
-                            } 
-                        } 
+                    setState(prev => (prev.player.movement.up || prev.player.movement.airBorn) ? prev : ({
+                        ...prev,
+                        player: {
+                            ...prev.player,
+                            movement: {
+                                ...prev.player.movement,
+                                up: true
+                            }
+                        }
                     }))
                 }
             }
@@ -205,44 +214,44 @@ export function Game() {
                     const newTyping = !prev.typing
                     return { ...prev, typing: newTyping }
                 })
-                setState(prev => ({ 
-                    ...prev, 
-                    player: { 
-                        ...prev.player, 
-                        movement: { 
-                            ...prev.player.movement, 
-                            up: false, 
-                            left: false, 
-                            right: false 
-                        } 
-                    } 
+                setState(prev => ({
+                    ...prev,
+                    player: {
+                        ...prev.player,
+                        movement: {
+                            ...prev.player.movement,
+                            up: false,
+                            left: false,
+                            right: false
+                        }
+                    }
                 }))
             }
         }
 
         const keyUP = (e: KeyboardEvent) => {
             if (e.code === 'KeyA') {
-                setState(prev => ({ 
-                    ...prev, 
-                    player: { 
-                        ...prev.player, 
-                        movement: { 
-                            ...prev.player.movement, 
-                            left: false 
-                        } 
-                    } 
+                setState(prev => ({
+                    ...prev,
+                    player: {
+                        ...prev.player,
+                        movement: {
+                            ...prev.player.movement,
+                            left: false
+                        }
+                    }
                 }))
             }
             if (e.code === 'KeyD') {
-                setState(prev => ({ 
-                    ...prev, 
-                    player: { 
-                        ...prev.player, 
-                        movement: { 
-                            ...prev.player.movement, 
-                            right: false 
-                        } 
-                    } 
+                setState(prev => ({
+                    ...prev,
+                    player: {
+                        ...prev.player,
+                        movement: {
+                            ...prev.player.movement,
+                            right: false
+                        }
+                    }
                 }))
             }
         }

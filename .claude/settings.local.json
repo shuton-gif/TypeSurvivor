@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /Users/shutonishida/MyProjects/GitProject/TypeSurvivor/app/charactorMaker)",
+      "Bash(mv /Users/shutonishida/MyProjects/GitProject/TypeSurvivor/app/game.module.css /Users/shutonishida/MyProjects/GitProject/TypeSurvivor/app/game/)",
+      "Bash(mv /Users/shutonishida/MyProjects/GitProject/TypeSurvivor/app/spells.ts /Users/shutonishida/MyProjects/GitProject/TypeSurvivor/app/game/)",
+      "Bash(mv /Users/shutonishida/MyProjects/GitProject/TypeSurvivor/app/animation.tsx /Users/shutonishida/MyProjects/GitProject/TypeSurvivor/app/game/)",
+      "Bash(mv /Users/shutonishida/MyProjects/GitProject/TypeSurvivor/app/animation.module.css /Users/shutonishida/MyProjects/GitProject/TypeSurvivor/app/game/)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

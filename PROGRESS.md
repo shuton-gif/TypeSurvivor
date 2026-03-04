@@ -1,32 +1,31 @@
 # Progress Update
 
 ## Added
-- Comprehensive vocabulary system (VOCAB array with 200+ entries)
-- EHKKR type with En/Hi/Kan/Kat/Ro/level fields
-- Katakana support for all vocabulary entries
-- Level-based difficulty system (1-5 scale)
-- handleRomaji function with multiple output types
-- Romaji input toggle (Left Shift key)
-- Complete physics system (gravity, jumping, friction)
-- Japanese IME composition support
-- Typing mode with text input display
+- Character maker component with grid-based editor
+- Shape and Character type definitions
+- Layer view system (HEAD/TORSO/BONE)
+- Grid validation for edge requirements
+- Shape converter from grid to character model
+- HitBox generation from shape outlines
+- Click-to-paint functionality (#ff0000)
 
 ## Changed
-- Restructured vocabulary with frequency-based levels
-- Added nullable Kan field for entries without kanji
-- Enhanced handleRomaji with proper null handling
-- Game state includes romaji boolean flag
-- Input handling supports both English and Japanese
+- Moved game files to app/game/ directory
+- Updated Editor type with layerView instead of boneView
+- Fixed TypeScript errors in setGrid function
+- Refactored shapeCoverter to use forEach instead of for loops
+- Enhanced setHitBox to detect edge cells with empty adjacents
 
 ## Deleted
-- Old incomplete RtoH/RtoE functions
+- Old boneView property from Editor type
+- Broken syntax in shapeCoverter function
 
 ## Next Functions to Implement
-- Enemy spawning with vocabulary challenges
-- Translation validation system
-- Scoring based on accuracy and speed
-- Visual feedback for correct/incorrect answers
-- Progressive difficulty based on player level
+- Color palette selection for character painting
+- Layer switching functionality implementation
+- Character export/save system
+- Character preview visualization
+- Multiple shape combination logic
 
 ## IDEA 
 - add npc that can understand easy commands ex:　芋　掘れ
