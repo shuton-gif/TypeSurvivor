@@ -29,10 +29,10 @@ const GRAVITY: number = 10 * 0.1;
 const SLOW: number = 0.7; //30% slow
 
 //----------- PLAYER -------------
-const HEIGHT_RATIO: number = 75;
-const WIDTH_RATIO: number = 53;
-const HEIGHT: number = HEIGHT_RATIO / 1.5;
-const WIDTH: number = WIDTH_RATIO / 1.5;
+const HEIGHT_RATIO: number = 600; //600
+const WIDTH_RATIO: number = 420; //420
+const HEIGHT: number = HEIGHT_RATIO / 12;
+const WIDTH: number = WIDTH_RATIO / 12;
 const INITIALX: number = 300;
 const GROUNDED: number = GTOP - HEIGHT;
 const HP: number = 10;

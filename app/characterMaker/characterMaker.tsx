@@ -23,6 +23,7 @@ export function CharacterMaker({ height, width }: {
     height: number,
     width: number
 }) {
+
     const initGrid = Array.from({ length: height }, () => Array(width).fill(''))
 
     const [edit, setEdit] = useState<Editor>({
