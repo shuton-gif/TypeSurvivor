@@ -1,5 +1,4 @@
 'use client'
-import { stat } from 'fs';
 import styles from './game.module.css';
 import { VOCAB, handleRomaji } from './spells';
 import { useState, useEffect, useRef } from "react";
@@ -127,7 +126,11 @@ export function Game() {
         },
         scores: 0,
         typing: false,
-        screen: { x: - BG_WIDTH / 2, y: 0, left: WIDTH + WIDTH, right: S_WIDTH - WIDTH },
+        screen: { x: - BG_WIDTH / 2, y: 0, left: WIDTH + WIDTH, right: S_WIDTH },
+        // TODO: 
+        // .gameScene {
+        //     width: 90%;
+        // make screen.left responsive
         scale: 1,
         romaji: false,
     })
@@ -490,8 +493,8 @@ export function Game() {
             }}>
                 <div>pX:{state.player.x}</div>
                 <div>pY:{state.player.y}</div>
-                <div>lv:{state.player.movement.leftVelocity}</div>
-                <div>rv:{state.player.movement.rightVelocity}</div>
+                <div>lv:{Math.floor(state.player.movement.leftVelocity)}</div>
+                <div>rv:{Math.floor(state.player.movement.rightVelocity)}</div>
                 <div>sX:{state.screen.x}</div>
                 <div>GR:{GROUNDED}</div>
                 <div>HE:{HEIGHT}</div>
