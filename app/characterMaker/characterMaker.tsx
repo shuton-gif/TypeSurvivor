@@ -11,7 +11,7 @@ type Shape = {
 type Charactor = {
     model: Shape[]
     hitBox?: Array<{ x: number, y: number }>
-    joint?: { x: number, y: number }
+    joint?: Array<{ x: number, y: number }>
 }
 
 type Editor = {
@@ -99,10 +99,10 @@ export function CharacterMaker({ height, width }: {
                             <div
                                 key={colIndex}
                                 style={{
-                                    border: 'solid 0.0625rem white',
+                                    border: 'solid 0.0625rem black',
                                     backgroundColor: cell || 'transparent',
-                                    width: toRem(50),
-                                    height: toRem(50),
+                                    width: toRem(10),
+                                    height: toRem(10),
                                     cursor: 'pointer'
                                 }}
                                 onClick={() => {

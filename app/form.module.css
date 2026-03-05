@@ -1,4 +1,28 @@
+@font-face {
+    font-family: 'EnglishPixelFont';
+    src: url('/EnglishPixelFont.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'JapanesePF';
+    src: url('/JapanesePF.ttf') format('truetype');
+}
+
 .formContainer {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    height: 100vh;
     font-family: 'EnglishPixelFont', 'JapanesePF', monospace;
+}
+
+.gameFont {
+    font-size: 5rem;
+    padding-bottom: 1rem;
+}
+
+.CMakerFont {
+    font-size: 2.5rem;
 }

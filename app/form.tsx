@@ -9,8 +9,8 @@ export default function Form() {
 
     return (
         <div className={styles.formContainer}>
-            <div onClick={() => router.push('/game')}>GAME</div>
-            <div onClick={() => router.push('/chacterMaker')}>MAKE CHARACTOR</div>
+            <div className={styles.gameFont} onClick={() => router.push('/game')}>GAME</div>
+            <div className={styles.CMakerFont} onClick={() => router.push('/characterMaker')}>MAKE CHARACTOR</div>
         </div>
     )
 }
