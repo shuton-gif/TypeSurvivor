@@ -23,8 +23,8 @@
 
 .backGround {
     position: absolute;
-    width: 100%;
-    height: 28.125rem;
+    /* width: 100%;
+    height: 28.125rem; */
     background-color: darkseagreen;
     /* background-size: cover; */
     /* background-size: 900px 900px; */

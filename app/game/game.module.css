@@ -1,6 +1,30 @@
+
+@font-face {
+    font-family: 'EnglishPixelFont';
+    src: url('/EnglishPixelFont.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'JapanesePF';
+    src: url('/JapanesePF.ttf') format('truetype');
+}
+
 .BGcontainer {
     position: absolute;
     width: 500%;
+}
+
+.gameScene {
+    width: 90%;
+    height: 37.5rem;
+    margin: 6.25rem auto;
+    position: relative;
+    opacity: 0.8;
+    font-family: 'EnglishPixelFont', 'JapanesePF', monospace;
+    overflow: hidden;
+    border-radius: 0.625rem;
+    box-shadow: 0.3125rem 0.3125rem 0.0625rem rgb(0, 0, 0, 0.5);
+    min-width: 50%;
 }
 
 .backGround {

@@ -1,14 +1,20 @@
 'use client'
+import { stat } from 'fs';
 import styles from './game.module.css';
 import { VOCAB, handleRomaji } from './spells';
 import { useState, useEffect, useRef } from "react";
 //------------ CSS ---------------
+//SCREEN
+const S_WIDTH: number = 1200
+const S_HEIGHT: number = 600
 //BACK GROUND
-const BGTOP: number = 0
-const BGHEIGHT: number = 450
+const BG_TOP: number = 0
+const BG_HEIGHT: number = 450
+const BG_WIDTH: number = 2400
 //GROUND ------------------
 const GTOP: number = 450
-const GHEIGHT: number = 150
+const G_HEIGHT: number = 150
+const G_WIDTH: number = 2400
 //TEXT BOX -----------------
 const THEIGHT: number = 100
 const TWIDTH: number = 300
@@ -32,11 +38,10 @@ const GROUNDED: number = GTOP - HEIGHT;
 const HP: number = 10;
 
 export const GAME_CONFIG = {
-    BGTOP, BGHEIGHT, GTOP, GHEIGHT, THEIGHT, TWIDTH,
+    BG_TOP, BG_HEIGHT, GTOP, G_HEIGHT, THEIGHT, TWIDTH,
     TOPSPEED, ACCELERATION, VELOCITY, JUMPPOWER, FRICTION, GRAVITY, SLOW,
     HEIGHT_RATIO, WIDTH_RATIO, HEIGHT, WIDTH, INITIALX, GROUNDED, HP
 } as const
-
 
 type Movement = {
     up: boolean,
@@ -68,7 +73,9 @@ type Enemy = {
 
 type Screen = {
     x: number,
-    y: number
+    y: number,
+    left: number,
+    right: number
 }
 
 export type GameState = {
@@ -76,7 +83,7 @@ export type GameState = {
     enemy?: Enemy[],
     scores: number,
     typing: boolean,
-    screen?: Screen,
+    screen: Screen,
     scale: number,
     romaji: boolean,
 }
@@ -120,7 +127,7 @@ export function Game() {
         },
         scores: 0,
         typing: false,
-        screen: { x: 0, y: 0 },
+        screen: { x: - BG_WIDTH / 2, y: 0, left: WIDTH + WIDTH, right: S_WIDTH - WIDTH },
         scale: 1,
         romaji: false,
     })
@@ -263,48 +270,96 @@ export function Game() {
             }
             let s: number = newState.scale;
             let move = newState.player.movement
+            // let inScreenX: number = newState.screen.x - newState.player.x
 
-            if (move.left && !move.airBorn) {
-                move.leftVelocity += VELOCITY
-                if (move.leftVelocity < TOPSPEED) {
-                    move.leftVelocity += ACCELERATION
-                } else {
-                    move.leftVelocity = TOPSPEED
-                }
-                newState.player.x -= move.leftVelocity * s
-            } else {
-                if (move.leftVelocity > 0) {
-                    if (!move.airBorn) {
-                        move.leftVelocity -= FRICTION
-                    }
-                    if (move.leftVelocity < 0.25) {
-                        move.leftVelocity = 0
+            if (newState.player.x <= newState.screen.left) {
+                if (move.left && !move.airBorn) {
+                    move.leftVelocity += VELOCITY
+                    if (move.leftVelocity < TOPSPEED) {
+                        move.leftVelocity += ACCELERATION
                     } else {
-                        newState.player.x -= move.leftVelocity * s
+                        move.leftVelocity = TOPSPEED
+                    }
+                    newState.screen.x -= move.leftVelocity * s
+                } else {
+                    if (move.leftVelocity > 0) {
+                        if (!move.airBorn) {
+                            move.leftVelocity -= FRICTION
+                        }
+                        if (move.leftVelocity < 0.25) {
+                            move.leftVelocity = 0
+                        } else {
+                            newState.screen.x -= move.leftVelocity * s
+                        }
+                    }
+                }
+            } else {
+                if (move.left && !move.airBorn) {
+                    move.leftVelocity += VELOCITY
+                    if (move.leftVelocity < TOPSPEED) {
+                        move.leftVelocity += ACCELERATION
+                    } else {
+                        move.leftVelocity = TOPSPEED
+                    }
+                    newState.player.x -= move.leftVelocity * s
+                } else {
+                    if (move.leftVelocity > 0) {
+                        if (!move.airBorn) {
+                            move.leftVelocity -= FRICTION
+                        }
+                        if (move.leftVelocity < 0.25) {
+                            move.leftVelocity = 0
+                        } else {
+                            newState.player.x -= move.leftVelocity * s
+                        }
                     }
                 }
             }
 
-            if (move.right && !move.airBorn) {
-                move.rightVelocity += VELOCITY
-                if (move.rightVelocity < TOPSPEED) {
-                    move.rightVelocity += ACCELERATION
-                } else {
-                    move.rightVelocity = TOPSPEED
-                }
-                newState.player.x += move.rightVelocity * s
-            } else {
-                if (move.rightVelocity > 0) {
-                    if (!move.airBorn) {
-                        move.rightVelocity -= FRICTION
-                    }
-                    if (move.rightVelocity < 0.25) {
-                        move.rightVelocity = 0
+            if (newState.player.x >= newState.screen.right) {
+                if (move.right && !move.airBorn) {
+                    move.rightVelocity += VELOCITY
+                    if (move.rightVelocity < TOPSPEED) {
+                        move.rightVelocity += ACCELERATION
                     } else {
-                        newState.player.x += move.rightVelocity * s
+                        move.rightVelocity = TOPSPEED
+                    }
+                    newState.screen.x += move.rightVelocity * s
+                } else {
+                    if (move.rightVelocity > 0) {
+                        if (!move.airBorn) {
+                            move.rightVelocity -= FRICTION
+                        }
+                        if (move.rightVelocity < 0.25) {
+                            move.rightVelocity = 0
+                        } else {
+                            newState.screen.x += move.rightVelocity * s
+                        }
+                    }
+                }
+            } else {
+                if (move.right && !move.airBorn) {
+                    move.rightVelocity += VELOCITY
+                    if (move.rightVelocity < TOPSPEED) {
+                        move.rightVelocity += ACCELERATION
+                    } else {
+                        move.rightVelocity = TOPSPEED
+                    }
+                    newState.player.x += move.rightVelocity * s
+                } else {
+                    if (move.rightVelocity > 0) {
+                        if (!move.airBorn) {
+                            move.rightVelocity -= FRICTION
+                        }
+                        if (move.rightVelocity < 0.25) {
+                            move.rightVelocity = 0
+                        } else {
+                            newState.player.x += move.rightVelocity * s
+                        }
                     }
                 }
             }
+
 
             // console.log('Left vel:', move.leftVelocity, 'Right vel:', move.rightVelocity)
 
@@ -395,12 +450,15 @@ export function Game() {
 
     const BackGround = () => {
         return (
-            <div className={styles.BGcontainer}>
+            <div className={styles.BGcontainer}
+                style={{
+                    left: toRem(state.screen.x)
+                }}>
                 <div
                     className={styles.backGround}
                     style={{
-                        top: toRem(BGTOP),
-                        height: toRem(BGHEIGHT)
+                        top: toRem(BG_TOP),
+                        height: toRem(BG_HEIGHT)
                     }}
                 >
                 </div>
@@ -408,7 +466,7 @@ export function Game() {
                     className={styles.ground}
                     style={{
                         top: toRem(GTOP),
-                        height: toRem(GHEIGHT),
+                        height: toRem(G_HEIGHT),
                     }}
                 >
                 </div>
@@ -418,9 +476,27 @@ export function Game() {
     }
 
     return (
-        <>
-            <Player />
-            <BackGround />
-        </>
+        <div>
+            <div className={styles.gameScene}>
+                <Player />
+                <BackGround />
+            </div>
+            <div style={{
+                position: 'relative',
+                left: '0',
+                float: 'left',
+                display: 'flex',
+                gap: '20px'
+            }}>
+                <div>pX:{state.player.x}</div>
+                <div>pY:{state.player.y}</div>
+                <div>lv:{state.player.movement.leftVelocity}</div>
+                <div>rv:{state.player.movement.rightVelocity}</div>
+                <div>sX:{state.screen.x}</div>
+                <div>GR:{GROUNDED}</div>
+                <div>HE:{HEIGHT}</div>
+            </div>
+        </div>
+
     )
 }
