@@ -93,7 +93,12 @@ export function CharacterMaker({ height, width }: {
 
     return (
         <div>
-            <div>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
                 {edit.grids.map((row, rowIndex) => (
                     <div key={rowIndex} style={{ display: 'flex' }}>
                         {row.map((cell, colIndex) => (

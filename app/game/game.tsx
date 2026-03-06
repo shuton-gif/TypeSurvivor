@@ -4,8 +4,10 @@ import { VOCAB, handleRomaji } from './spells';
 import { useState, useEffect, useRef } from "react";
 //------------ CSS ---------------
 //SCREEN
-const S_WIDTH: number = 1200
-const S_HEIGHT: number = 600
+const S_WIDTH: number = 1440 // display width(1920) * 0.9
+const S_HEIGHT: number = 600 // display height(1080) * 0.9
+const S_LEFT: number = 500
+const S_RIGHT: number = 940
 //BACK GROUND
 const BG_TOP: number = 0
 const BG_HEIGHT: number = 450
@@ -28,11 +30,11 @@ const GRAVITY: number = 10 * 0.1;
 const SLOW: number = 0.7; //30% slow
 
 //----------- PLAYER -------------
-const HEIGHT_RATIO: number = 600; //600
-const WIDTH_RATIO: number = 420; //420
+const HEIGHT_RATIO: number = 600; //6
+const WIDTH_RATIO: number = 420; //4.2
 const HEIGHT: number = HEIGHT_RATIO / 12;
 const WIDTH: number = WIDTH_RATIO / 12;
-const INITIALX: number = 300;
+const INITIALX: number = S_WIDTH / 2 - WIDTH;
 const GROUNDED: number = GTOP - HEIGHT;
 const HP: number = 10;
 
@@ -53,13 +55,14 @@ type Movement = {
     leftVelocity: number,
     rightVelocity: number,
 }
+
 type Player = {
     x: number,
     y: number,
     height: number,
     width: number,
     HP: number,
-    input: string,
+    input: string[],
     movement: Movement
 }
 type Enemy = {
@@ -111,7 +114,7 @@ export function Game() {
             height: HEIGHT,
             width: WIDTH,
             HP: HP,
-            input: '',
+            input: [],
             movement: {
                 up: false,
                 down: false,
@@ -126,7 +129,7 @@ export function Game() {
         },
         scores: 0,
         typing: false,
-        screen: { x: - BG_WIDTH / 2, y: 0, left: WIDTH + WIDTH, right: S_WIDTH },
+        screen: { x: - BG_WIDTH / 2, y: 0, left: S_LEFT, right: S_RIGHT - WIDTH },
         // TODO: 
         // .gameScene {
         //     width: 90%;
@@ -141,6 +144,23 @@ export function Game() {
     })
 
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const width = window.innerWidth * 0.9
+            const height = window.innerHeight * 0.9
+            setState({
+                ...state,
+                player: {
+                    ...state.player,
+                    x: width,
+                    y: height,
+                },
+                screen: {
+                    ...state.screen,
+                    left: width * 0.4,
+                    right: width * 0.6
+                }
+            })
+        }
         const keyDOWN = (e: KeyboardEvent) => {
             const state = stateRef.current
             let newState = {
@@ -151,7 +171,10 @@ export function Game() {
                 if (e.key.length === 1) {
                     setState(prev => ({
                         ...prev,
-                        player: { ...prev.player, input: prev.player.input + e.key }
+                        player: {
+                            ...prev.player,
+                            input: [...prev.player.input, e.key]
+                        }
                     }))
                 } else if (e.code === 'Backspace') {
                     setState(prev => ({
@@ -483,6 +506,24 @@ export function Game() {
             <div className={styles.gameScene}>
                 <Player />
                 <BackGround />
+                {/* <div style={{
+                    position: 'absolute',
+                    left: toRem(S_LEFT),
+                    top: '0',
+                    width: '2px',
+                    height: '100%',
+                    backgroundColor: 'red',
+                    zIndex: 100
+                }}></div>
+                <div style={{
+                    position: 'absolute',
+                    left: toRem(S_RIGHT),
+                    top: '0',
+                    width: '2px',
+                    height: '100%',
+                    backgroundColor: 'red',
+                    zIndex: 100
+                }}></div> */}
             </div>
             <div style={{
                 position: 'relative',
@@ -491,13 +532,13 @@ export function Game() {
                 display: 'flex',
                 gap: '20px'
             }}>
-                <div>pX:{state.player.x}</div>
-                <div>pY:{state.player.y}</div>
-                <div>lv:{Math.floor(state.player.movement.leftVelocity)}</div>
+                {/* <div>pX:{state.player.x}</div> */}
+                {/* <div>pY:{state.player.y}</div> */}
+                {/* <div>lv:{Math.floor(state.player.movement.leftVelocity)}</div>
                 <div>rv:{Math.floor(state.player.movement.rightVelocity)}</div>
                 <div>sX:{state.screen.x}</div>
                 <div>GR:{GROUNDED}</div>
-                <div>HE:{HEIGHT}</div>
+                <div>HE:{HEIGHT}</div> */}
             </div>
         </div>
 
