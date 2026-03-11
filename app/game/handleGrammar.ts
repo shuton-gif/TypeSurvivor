@@ -4,7 +4,7 @@ type InputProps = {
     state: GameState
 }
 
-type LanguageComponents = {
+export type LanguageComponents = {
   // Core grammatical roles
   Topic?: string;        // は — the discourse frame ("as for X...")
   Subject?: string;      // が — the grammatical subject

@@ -2,6 +2,7 @@
 import styles from './game.module.css';
 import { VOCAB, handleRomaji } from './spells';
 import { useState, useEffect, useRef } from "react";
+import { LanguageComponents } from './handleGrammar';
 //------------ CSS ---------------
 //SCREEN
 const S_WIDTH: number = 1440 // display width(1920) * 0.9
@@ -80,11 +81,16 @@ type Screen = {
     right: number
 }
 
+type LC = {
+    components: LanguageComponents
+}
+
 export type GameState = {
     player: Player,
     enemy?: Enemy[],
     scores: number,
     typing: boolean,
+    LCMode: number
     screen: Screen,
     scale: number,
     romaji: boolean,
@@ -129,6 +135,7 @@ export function Game() {
         },
         scores: 0,
         typing: false,
+        LCMode: 0,
         screen: { x: - BG_WIDTH / 2, y: 0, left: S_LEFT, right: S_RIGHT - WIDTH },
         // TODO: 
         // .gameScene {
@@ -144,23 +151,23 @@ export function Game() {
     })
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const width = window.innerWidth * 0.9
-            const height = window.innerHeight * 0.9
-            setState({
-                ...state,
-                player: {
-                    ...state.player,
-                    x: width,
-                    y: height,
-                },
-                screen: {
-                    ...state.screen,
-                    left: width * 0.4,
-                    right: width * 0.6
-                }
-            })
-        }
+        // if (typeof window !== 'undefined') {
+        //     const width = window.innerWidth * 0.9
+        //     const height = window.innerHeight * 0.9
+        //     setState({
+        //         ...state,
+        //         player: {
+        //             ...state.player,
+        //             x: width,
+        //             y: height,
+        //         },
+        //         screen: {
+        //             ...state.screen,
+        //             left: width * 0.4,
+        //             right: width * 0.6
+        //         }
+        //     })
+        // }
         const keyDOWN = (e: KeyboardEvent) => {
             const state = stateRef.current
             let newState = {
@@ -260,6 +267,8 @@ export function Game() {
                     }
                 }))
             }
+            console.log(e.code)
+            console.log(e.key)
         }
 
         const keyUP = (e: KeyboardEvent) => {
@@ -532,13 +541,13 @@ export function Game() {
                 display: 'flex',
                 gap: '20px'
             }}>
-                {/* <div>pX:{state.player.x}</div> */}
-                {/* <div>pY:{state.player.y}</div> */}
-                {/* <div>lv:{Math.floor(state.player.movement.leftVelocity)}</div>
+                <div>pX:{state.player.x}</div>
+                <div>pY:{state.player.y}</div>
+                <div>lv:{Math.floor(state.player.movement.leftVelocity)}</div>
                 <div>rv:{Math.floor(state.player.movement.rightVelocity)}</div>
                 <div>sX:{state.screen.x}</div>
                 <div>GR:{GROUNDED}</div>
-                <div>HE:{HEIGHT}</div> */}
+                <div>HE:{HEIGHT}</div>
             </div>
         </div>
 

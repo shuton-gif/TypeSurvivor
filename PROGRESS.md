@@ -33,3 +33,4 @@
 - simplied SOV grammar. ex: 私　壁　作る、　攻撃、　たね、　植える
 - make Player animation in css
 - maybe rename to TypeKingdom 略して　タイキン
+- USE DOCKER
