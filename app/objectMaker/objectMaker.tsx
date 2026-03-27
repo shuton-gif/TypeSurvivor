@@ -6,7 +6,7 @@ import { PixelGrid } from "./components/PixelGrid"
 import { WebPConverter, downloadPixelArt, convertPixelGridToWebP, savePixelArtToAssets, ConversionOptions } from "./components/WebPConverter"
 
 type Pixel = {
-    isPainted: boolean
+    isPainted?: boolean
     color: string,
     points?: { x: number, y: number }
 }
@@ -96,7 +96,7 @@ export function ObjectMaker() {
             // Convert ObjectMaker Pixel type to PixelGrid Pixel type
             const convertedGrid = gridData.map(row => 
                 row.map(pixel => ({
-                    isPainted: pixel.isPainted,
+                    isPainted: pixel.isPainted ?? false,
                     color: pixel.color
                 }))
             )
@@ -120,7 +120,7 @@ export function ObjectMaker() {
         try {
             const convertedGrid = editor.onGoing.map(row => 
                 row.map(pixel => ({
-                    isPainted: pixel.isPainted,
+                    isPainted: pixel.isPainted ?? false,
                     color: pixel.color
                 }))
             )
@@ -146,7 +146,7 @@ export function ObjectMaker() {
         try {
             const convertedGrid = editor.onGoing.map(row => 
                 row.map(pixel => ({
-                    isPainted: pixel.isPainted,
+                    isPainted: pixel.isPainted ?? false,
                     color: pixel.color
                 }))
             )
@@ -172,7 +172,7 @@ export function ObjectMaker() {
                 name: layerName,
                 gridData: editor.onGoing.map(row => 
                     row.map(pixel => ({
-                        isPainted: pixel.isPainted,
+                        isPainted: pixel.isPainted ?? false,
                         color: pixel.color
                     }))
                 )
@@ -227,7 +227,16 @@ export function ObjectMaker() {
                             <button onClick={generatePreview} style={{ padding: '8px', fontSize: '12px' }}>
                                 Generate Preview
                             </button>
-                            <button onClick={() => handleSaveToAssets()} style={{ padding: '8px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}>
+                            <button onClick={() => {
+                                // Get filename from the PixelGrid component's state
+                                // For now, prompt user for filename when using this button
+                                const name = prompt('Enter filename for assets:');
+                                if (name && name.trim()) {
+                                    handleSaveToAssets(name.trim());
+                                } else if (name === '') {
+                                    alert('Please enter a filename');
+                                }
+                            }} style={{ padding: '8px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}>
                                 Save to Assets
                             </button>
                             <button onClick={exportAllLayers} style={{ padding: '8px', fontSize: '12px' }}>

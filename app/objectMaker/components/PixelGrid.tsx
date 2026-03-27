@@ -1,7 +1,6 @@
 'use client'
 import { toRem } from "../../game/game"
 import { useState } from "react"
-import { WebPConverter } from "./WebPConverter"
 
 export type Pixel = {
     isPainted?: boolean
@@ -30,10 +29,15 @@ export function PixelGrid({ gridData, onPixelClick, onGridResize, onExportImage 
 
     const handleExport = async (e: React.SyntheticEvent) => {
         e.preventDefault()
+        if (!filename.trim()) {
+            alert('Please enter a filename')
+            return
+        }
         if (onExportImage) {
-            await onExportImage(gridData, filename)
+            await onExportImage(gridData, filename.trim())
         }
     }
+
 
     return (
         <div>
@@ -63,18 +67,16 @@ export function PixelGrid({ gridData, onPixelClick, onGridResize, onExportImage 
                     </label>
                     <button type="submit">Resize</button>
                 </form>
-
                 <form onSubmit={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <label>
                         Filename: 
                         <input 
                             type="text" 
                             value={filename} 
-                            onChange={(e) => setFilename(e.target.value || 'my-pixel-art')}
+                            onChange={(e) => setFilename(e.target.value)}
                             style={{ margin: '0 0.5rem', width: '120px' }}
                         />
                     </label>
-                    <button type="submit">Export WebP</button>
                 </form>
             </div>
             {gridData.map((row, rowIndex) => (
