@@ -1,0 +1,23 @@
+{
+  "name": "test",
+  "gridSize": {
+    "width": 16,
+    "height": 16
+  },
+  "layers": [
+    {
+      "name": "base2",
+      "layerId": 1,
+      "identifierColor": "#7D508A",
+      "file": "test_base2.webp",
+      "zIndex": 1
+    },
+    {
+      "name": "base",
+      "layerId": 0,
+      "identifierColor": "#4CAF50",
+      "file": "test_base.webp",
+      "zIndex": 0
+    }
+  ]
+}

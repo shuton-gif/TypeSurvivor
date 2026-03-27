@@ -7,76 +7,163 @@ import { PixelGrid } from "./components/PixelGrid"
 import { WebPConverter, downloadPixelArt, convertPixelGridToWebP, savePixelArtToAssets, ConversionOptions } from "./components/WebPConverter"
 
 type Pixel = {
-    isPainted?: boolean
-    color: string,
+    isPainted: boolean
+    color: string
+    layer: Layer
     points?: { x: number, y: number }
+}
+
+type Layer = {
+    name: string
+    layerId: number
+    identifierColor?: string
 }
 
 type Editor = {
     gridX: number
     gridY: number
-    onGoing: Pixel[][]
+    onGoing: Pixel[][][]  // 3D array: [row][col][layer]
     final?: Pixel[]
 
     brushColor: string
-    layer: string[]
+    layer: Layer[]
     currentLayer: number
+    layerSeparation: boolean
 }
 
 export function ObjectMaker() {
-    const createGrid = (height: number, width: number): Pixel[][] => {
-        return Array.from({ length: height }, () => Array(width).fill({
-            isPainted: false,
-            color: 'transparent',
-        }))
+    const createGrid = (height: number, width: number): Pixel[][][] => {
+        const baseLayer: Layer = { name: 'base', layerId: 0, identifierColor: '#4CAF50' }
+        return Array.from({ length: height }, () =>
+            Array.from({ length: width }, () => [
+                {
+                    isPainted: false,
+                    color: 'transparent',
+                    layer: baseLayer
+                }
+            ])
+        )
     }
 
     const [editor, setEditor] = useState<Editor>({
         gridX: 16,
         gridY: 16,
         onGoing: createGrid(16, 16),
-
         brushColor: 'white',
-        layer: ['base'],
-        currentLayer: 0
+        layer: [{ name: 'base', layerId: 0, identifierColor: '#4CAF50' }],
+        currentLayer: 0,
+        layerSeparation: false
     })
 
     const [previewImage, setPreviewImage] = useState<string | null>(null)
     const [availableColors, setAvailableColors] = useState<string[]>(['red', 'blue', 'yellow', 'transparent'])
 
     const handleColorSelect = (color: string) => {
-        setEditor({
-            ...editor,
-            brushColor: color
+        setEditor({ ...editor, brushColor: color })
+    }
+
+    const handleAddLayer = (layer: Layer) => {
+        const newLayer = { ...layer, layerId: editor.layer.length }
+        setEditor(prev => ({
+            ...prev,
+            layer: [...prev.layer, newLayer]
+        }))
+    }
+
+    const handleSelectLayer = (layerId: number, handleLayerSeparation?: (content: Layer[], layerColor: string) => void) => {
+        setEditor(prev => ({
+            ...prev,
+            currentLayer: layerId,
+            layerSeparation: true
+        }))
+        if (handleLayerSeparation) {
+            handleLayerSeparation(editor.layer, editor.layer[layerId]?.identifierColor || '#ccc')
+        }
+    }
+
+    const handleDeleteLayer = (layerId: number) => {
+        setEditor(prev => {
+            const deletedLayer = prev.layer[layerId]
+            const newLayers = prev.layer.filter((_, index) => index !== layerId)
+
+            let newCurrentLayer = prev.currentLayer
+            if (prev.currentLayer >= layerId && prev.currentLayer > 0) {
+                newCurrentLayer = prev.currentLayer - 1
+            } else if (prev.currentLayer >= newLayers.length) {
+                newCurrentLayer = Math.max(0, newLayers.length - 1)
+            }
+
+            // Remove deleted layer's pixels from grid
+            const newGrid = prev.onGoing.map(row =>
+                row.map(cellLayers =>
+                    cellLayers.filter(p => p.layer.layerId !== deletedLayer.layerId)
+                )
+            )
+
+            return {
+                ...prev,
+                layer: newLayers,
+                currentLayer: newCurrentLayer,
+                onGoing: newGrid
+            }
         })
     }
 
-    const handleAddLayer = (layerName: string) => {
-        setEditor({
-            ...editor,
-            layer: [...editor.layer, layerName]
+    const handleReorderLayers = (fromIndex: number, toIndex: number) => {
+        setEditor(prev => {
+            const newLayers = [...prev.layer]
+            const [movedLayer] = newLayers.splice(fromIndex, 1)
+            newLayers.splice(toIndex, 0, movedLayer)
+
+            // Update currentLayer to follow the active layer
+            let newCurrentLayer = prev.currentLayer
+            if (prev.currentLayer === fromIndex) {
+                newCurrentLayer = toIndex
+            } else if (fromIndex < prev.currentLayer && toIndex >= prev.currentLayer) {
+                newCurrentLayer = prev.currentLayer - 1
+            } else if (fromIndex > prev.currentLayer && toIndex <= prev.currentLayer) {
+                newCurrentLayer = prev.currentLayer + 1
+            }
+
+            return {
+                ...prev,
+                layer: newLayers,
+                currentLayer: newCurrentLayer
+            }
         })
     }
 
-    const handleSelectLayer = (layerId: number) => {
-        setEditor({
-            ...editor,
-            currentLayer: layerId
-        })
+    const handleSeparateLayer = (layerId: number, content: Layer[], layerColor: string) => {
+        setEditor(prev => ({
+            ...prev,
+            layerSeparation: !prev.layerSeparation
+        }))
     }
 
     const handlePixelClick = (rowIndex: number, colIndex: number) => {
-        console.log(`Grid clicked - x: ${colIndex}, y: ${rowIndex}, color: ${editor.brushColor}`)
-        setEditor(prev => ({
-            ...prev,
-            onGoing: prev.onGoing.map((row, r) =>
-                row.map((cell, c) => (r == rowIndex && c == colIndex) ? {
-                    ...cell,
-                    color: editor.brushColor,
-                    isPainted: true
-                } : cell)
-            )
-        }))
+        setEditor(prev => {
+            const newGrid = prev.onGoing.map(row => row.map(cell => [...cell]))
+            const cellLayers = newGrid[rowIndex][colIndex]
+            const currentLayer = prev.layer[prev.currentLayer]
+            const existingPixelIndex = cellLayers.findIndex(p => p.layer.layerId === currentLayer.layerId)
+
+            if (existingPixelIndex >= 0) {
+                cellLayers[existingPixelIndex] = {
+                    ...cellLayers[existingPixelIndex],
+                    color: prev.brushColor,
+                    isPainted: prev.brushColor !== 'transparent'
+                }
+            } else {
+                cellLayers.push({
+                    isPainted: prev.brushColor !== 'transparent',
+                    color: prev.brushColor,
+                    layer: currentLayer
+                })
+            }
+
+            newGrid[rowIndex][colIndex] = cellLayers
+            return { ...prev, onGoing: newGrid }
+        })
     }
 
     const handleGridResize = (height: number, width: number) => {
@@ -86,102 +173,142 @@ export function ObjectMaker() {
             gridY: width,
             onGoing: createGrid(height, width)
         }))
-        // Clear preview when grid is resized
         setPreviewImage(null)
     }
 
     const handleClearGrid = () => {
         setEditor(prev => ({
             ...prev,
-            onGoing: prev.onGoing.map(row => 
-                row.map(pixel => ({
-                    ...pixel,
-                    color: 'transparent',
-                    isPainted: false
-                }))
+            onGoing: prev.onGoing.map(row =>
+                row.map(cellLayers =>
+                    cellLayers.map(pixel => ({
+                        ...pixel,
+                        color: 'transparent',
+                        isPainted: false
+                    }))
+                )
             )
         }))
-        // Clear preview when grid is cleared
         setPreviewImage(null)
     }
 
     const handleColorAdder = (newColor: string) => {
-        // Check if color already exists
         if (!availableColors.includes(newColor)) {
             setAvailableColors(prev => [...prev, newColor])
-            console.log(`Added new color: ${newColor}`)
         } else {
             alert('Color already exists in the palette!')
         }
     }
 
-    // WebP Export Handler - Direct download
-    const handleExportImage = async (gridData: Pixel[][], filename = 'pixel-art') => {
+    // Helper: flatten a specific layer from 3D grid to 2D for WebP conversion
+    const flattenLayerGrid = (targetLayer: Layer): { isPainted: boolean; color: string; layer: Layer }[][] => {
+        return editor.onGoing.map(row =>
+            row.map(cellLayers => {
+                const layerPixel = cellLayers.find(p => p.layer.layerId === targetLayer.layerId)
+                return {
+                    isPainted: layerPixel?.isPainted ?? false,
+                    color: layerPixel?.color ?? 'transparent',
+                    layer: layerPixel?.layer ?? targetLayer
+                }
+            })
+        )
+    }
+
+    // Helper: flatten all layers composited (topmost painted wins) for preview/single export
+    const flattenCompositedGrid = (): { isPainted: boolean; color: string; layer: Layer }[][] => {
+        return editor.onGoing.map(row =>
+            row.map(cellLayers => {
+                // Use layer order from editor.layer (last = highest z-index = front)
+                for (let i = editor.layer.length - 1; i >= 0; i--) {
+                    const layer = editor.layer[i]
+                    const pixel = cellLayers.find(p => p.layer.layerId === layer.layerId)
+                    if (pixel?.isPainted) {
+                        return { isPainted: true, color: pixel.color, layer: pixel.layer }
+                    }
+                }
+                return {
+                    isPainted: false,
+                    color: 'transparent',
+                    layer: cellLayers[0]?.layer || { name: 'base', layerId: 0, identifierColor: '#4CAF50' }
+                }
+            })
+        )
+    }
+
+    // Single composited WebP download
+    const handleExportImage = async (gridData: Pixel[][][], filename = 'pixel-art') => {
         try {
-            // Convert ObjectMaker Pixel type to PixelGrid Pixel type
-            const convertedGrid = gridData.map(row => 
-                row.map(pixel => ({
-                    isPainted: pixel.isPainted ?? false,
-                    color: pixel.color
-                }))
-            )
-
-            const options: ConversionOptions = {
-                scale: 10,    // 10x upscale for crisp pixels
-                quality: 0.9, // High quality
-                format: 'webp'
-            }
-
+            const convertedGrid = flattenCompositedGrid()
+            const options: ConversionOptions = { scale: 10, quality: 0.9, format: 'webp' }
             await downloadPixelArt(convertedGrid, filename, options)
-            console.log(`Successfully exported ${filename}.webp`)
         } catch (error) {
             console.error('Export failed:', error)
             alert('Failed to export image. Please try again.')
         }
     }
 
-    // Save to assets directory handler
+    // Save all layers to assets with construction_manual.json
     const handleSaveToAssets = async (filename = 'pixel-art') => {
         try {
-            const convertedGrid = editor.onGoing.map(row => 
-                row.map(pixel => ({
-                    isPainted: pixel.isPainted ?? false,
-                    color: pixel.color
-                }))
-            )
+            const safeFilename = filename.replace(/[^a-zA-Z0-9-_]/g, '-')
+            const options: ConversionOptions = { scale: 10, quality: 0.9, format: 'webp' }
 
-            const options: ConversionOptions = {
-                scale: 10,    // 10x upscale for crisp pixels
-                quality: 0.9, // High quality
-                format: 'webp'
+            const formData = new FormData()
+            formData.append('filename', safeFilename)
+
+            // Build construction manual with CSS z-index ordering:
+            // Last in the layer array = highest z-index = rendered on top
+            const constructionManual = {
+                name: safeFilename,
+                gridSize: { width: editor.gridY, height: editor.gridX },
+                layers: editor.layer.map((layer, index) => ({
+                    name: layer.name,
+                    layerId: layer.layerId,
+                    identifierColor: layer.identifierColor,
+                    file: `${safeFilename}_${layer.name.replace(/[^a-zA-Z0-9-_]/g, '-')}.webp`,
+                    zIndex: editor.layer.length - 1 - index  // CSS z-index: top of list = highest z
+                }))
             }
 
-            const result = await savePixelArtToAssets(convertedGrid, filename, options)
-            console.log(`Successfully saved to: ${result.path}`)
-            console.log(`Available at URL: ${result.url}`)
-            alert(`Image saved to assets directory!\nPath: ${result.path}\nURL: ${result.url}`)
+            formData.append('construction_manual', JSON.stringify(constructionManual, null, 2))
+
+            // Convert each layer to a WebP blob and append to form
+            for (const layer of editor.layer) {
+                const layerGrid = flattenLayerGrid(layer)
+                const result = await convertPixelGridToWebP(layerGrid, options)
+
+                // Convert dataURL to Blob
+                const response = await fetch(result.dataURL)
+                const blob = await response.blob()
+
+                const layerFilename = `${safeFilename}_${layer.name.replace(/[^a-zA-Z0-9-_]/g, '-')}.webp`
+                formData.append(`layer_${layer.name}`, new File([blob], layerFilename, { type: 'image/webp' }))
+            }
+
+            const res = await fetch('/api/save-image', {
+                method: 'POST',
+                body: formData
+            })
+
+            const result = await res.json()
+
+            if (res.ok) {
+                console.log('Saved successfully:', result)
+                alert(`Layers saved to ${result.folder}\nManual: ${result.manual}\nLayers: ${result.layers?.length || 0} files`)
+            } else {
+                throw new Error(result.error || 'Save failed')
+            }
         } catch (error) {
             console.error('Save to assets failed:', error)
             alert('Failed to save to assets directory. Please try again.')
         }
     }
 
-    // Generate preview image
+    // Generate composited preview
     const generatePreview = async () => {
         try {
-            const convertedGrid = editor.onGoing.map(row => 
-                row.map(pixel => ({
-                    isPainted: pixel.isPainted ?? false,
-                    color: pixel.color
-                }))
-            )
-
-            const options: ConversionOptions = {
-                scale: 5,     // Smaller scale for preview
-                quality: 0.8,
-                format: 'webp'
-            }
-
+            const convertedGrid = flattenCompositedGrid()
+            const options: ConversionOptions = { scale: 5, quality: 0.8, format: 'webp' }
             const result = await convertPixelGridToWebP(convertedGrid, options)
             setPreviewImage(result.dataURL)
         } catch (error) {
@@ -189,29 +316,18 @@ export function ObjectMaker() {
         }
     }
 
-    // Export all layers as separate images
+    // Export all layers as separate downloads
     const exportAllLayers = async () => {
         try {
             const converter = new WebPConverter()
-            const layerData = editor.layer.map(layerName => ({
-                name: layerName,
-                gridData: editor.onGoing.map(row => 
-                    row.map(pixel => ({
-                        isPainted: pixel.isPainted ?? false,
-                        color: pixel.color
-                    }))
-                )
+            const layerData = editor.layer.map(exportLayer => ({
+                name: exportLayer.name,
+                gridData: flattenLayerGrid(exportLayer)
             }))
 
-            const options: ConversionOptions = {
-                scale: 10,
-                quality: 0.9,
-                format: 'webp'
-            }
-
+            const options: ConversionOptions = { scale: 10, quality: 0.9, format: 'webp' }
             await converter.downloadLayers(layerData, 'pixel-art-layers', options)
             converter.dispose()
-            console.log('Successfully exported all layers')
         } catch (error) {
             console.error('Layer export failed:', error)
             alert('Failed to export layers. Please try again.')
@@ -226,6 +342,9 @@ export function ObjectMaker() {
                     activeLayerId={editor.currentLayer}
                     onAddLayer={handleAddLayer}
                     onSelectLayer={handleSelectLayer}
+                    onDeleteLayer={handleDeleteLayer}
+                    onReorderLayers={handleReorderLayers}
+                    separeteLayer={handleSeparateLayer}
                 />
                 <PixelGrid
                     gridData={editor.onGoing}
@@ -233,6 +352,9 @@ export function ObjectMaker() {
                     onGridResize={handleGridResize}
                     onExportImage={handleExportImage}
                     onClearGrid={handleClearGrid}
+                    layerSeparation={editor.layerSeparation}
+                    activeLayerId={editor.currentLayer}
+                    layers={editor.layer}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div>
@@ -244,7 +366,7 @@ export function ObjectMaker() {
                             isEraser={true}
                             onSelect={handleColorSelect}
                         />
-                        
+
                         <h4 style={{ margin: '10px 0 10px 0' }}>Colors</h4>
                         {availableColors.filter(color => color !== 'transparent').map((color) => (
                             <ColorSetter
@@ -265,13 +387,11 @@ export function ObjectMaker() {
                                 Generate Preview
                             </button>
                             <button onClick={() => {
-                                // Get filename from the PixelGrid component's state
-                                // For now, prompt user for filename when using this button
-                                const name = prompt('Enter filename for assets:');
+                                const name = prompt('Enter filename for assets:')
                                 if (name && name.trim()) {
-                                    handleSaveToAssets(name.trim());
+                                    handleSaveToAssets(name.trim())
                                 } else if (name === '') {
-                                    alert('Please enter a filename');
+                                    alert('Please enter a filename')
                                 }
                             }} style={{ padding: '8px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}>
                                 Save to Assets
@@ -285,14 +405,14 @@ export function ObjectMaker() {
                     {previewImage && (
                         <div style={{ marginTop: '20px' }}>
                             <h4 style={{ margin: '0 0 10px 0' }}>Preview</h4>
-                            <img 
-                                src={previewImage} 
-                                alt="Preview" 
-                                style={{ 
-                                    border: '1px solid #ccc', 
+                            <img
+                                src={previewImage}
+                                alt="Preview"
+                                style={{
+                                    border: '1px solid #ccc',
                                     maxWidth: '200px',
                                     imageRendering: 'pixelated'
-                                }} 
+                                }}
                             />
                         </div>
                     )}
