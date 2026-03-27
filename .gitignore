@@ -46,3 +46,7 @@ Thumbs.db
 
 # Large binaries
 *.node
+
+.sh
+
+.claude

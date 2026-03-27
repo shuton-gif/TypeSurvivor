@@ -3,21 +3,27 @@ import { useState } from "react"
 import { toRem } from "../game/game"
 import { GAME_CONFIG as GC } from "../game/game"
 
-type Shape = {
+type Grid = {
+    isPainted: boolean
     color: string,
     points: Array<{ x: number, y: number }>
 }
 
 type Charactor = {
-    model: Shape[]
+    model: Grid[]
     hitBox?: Array<{ x: number, y: number }>
     joint?: Array<{ x: number, y: number }>
 }
 
 type Editor = {
     grids: string[][],
+    smallGrids?: string[][]
+    gridX: number,
+    gridY: number,
     layerView: number, // 0: HEAD, 1: TORSO, 2: BONE
+    smallGrid: boolean
 }
+
 
 export function CharacterMaker({ height, width }: {
     height: number,
@@ -25,114 +31,117 @@ export function CharacterMaker({ height, width }: {
 }) {
 
     const initGrid = Array.from({ length: height }, () => Array(width).fill(''))
+    const initSmall = Array.from({ length: 10 }, () => Array(10).fill(''))
 
     const [edit, setEdit] = useState<Editor>({
         grids: initGrid,
-        layerView: 0
+        smallGrids: initSmall,
+        gridX: GC.HEIGHT,
+        gridY: GC.WIDTH,
+        layerView: 0,
+        smallGrid: false,
     })
 
-    const validateDrawing = (edit: string[][]): boolean => {
-        const hasTop = edit[0].some(cell => cell !== '')
-        const hasBottom = edit[edit.length - 1].some(cell => cell !== '')
-        const hasLeft = edit.some(row => row[0] !== '')
-        const hasRight = edit.some(row => row[row.length - 1] !== '')
 
-        return hasTop && hasBottom && hasLeft && hasRight
-    }
-
-
-    const shapeCoverter = (grids: Editor): Charactor => {
-        const shapes: Shape[] = []
-
-        grids.grids.forEach((row, r) => {
-            row.forEach((color, c) => {
-                if (color) {
-                    shapes.push({
-                        color: color,
-                        points: [{ x: c, y: r }]
-                    })
-                }
-            })
-        })
-
-        return { model: shapes }
-    }
-
-    const setHitBox = (character: Charactor): Charactor => {
-        const hitBox: Array<{ x: number, y: number }> = []
-
-        edit.grids.forEach((row, r) => {
-            row.forEach((cell, c) => {
-                if (cell) {
-                    const hasEmptyAdjacent =
-                        (r === 0 || edit.grids[r - 1][c] === '') ||
-                        (r === edit.grids.length - 1 || edit.grids[r + 1][c] === '') ||
-                        (c === 0 || edit.grids[r][c - 1] === '') ||
-                        (c === row.length - 1 || edit.grids[r][c + 1] === '')
-
-                    if (hasEmptyAdjacent) {
-                        hitBox.push({ x: c, y: r })
-                    }
-                }
-            })
-        })
-
-        return { ...character, hitBox }
-    }
-
-    const setFinal = () => {
-        if (validateDrawing(edit.grids) && height === GC.HEIGHT && width === GC.WIDTH) {
-            console.log('Valid character created!')
-            const character = shapeCoverter(edit)
-            const finalCharacter = setHitBox(character)
-            console.log('Character data:', finalCharacter)
+    const smallGrid = () => {
+        if (edit.smallGrid) {
+            return (
+                <div>
+                    {edit.smallGrids?.map((row, rowIndex) => (
+                        <div key={rowIndex} style={{ display: 'flex' }}>
+                            {row.map((cell, colIndex) => (
+                                <div
+                                    key={colIndex}
+                                    style={{
+                                        border: 'solid 0.0625rem black',
+                                        backgroundColor: cell || 'transparent',
+                                        width: toRem(25),
+                                        height: toRem(25),
+                                        cursor: 'pointer'
+                                    }}
+                                    onClick={() => {
+                                        setEdit(prev => ({
+                                            ...prev,
+                                            grids: prev.grids.map((row, r) =>
+                                                row.map((cell, c) => r == rowIndex && c == colIndex ? '#ff0000' : cell)
+                                            )
+                                        }))
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            )
         } else {
-            console.log('Character must touch all edges and match GC dimensions')
+            return (
+                <div>
+                    {edit.grids.map((row, rowIndex) => (
+                        <div key={rowIndex} style={{ display: 'flex' }}>
+                            {row.map((cell, colIndex) => (
+                                <div
+                                    key={colIndex}
+                                    style={{
+                                        border: 'solid 0.0625rem black',
+                                        backgroundColor: cell || 'transparent',
+                                        width: toRem(10),
+                                        height: toRem(10),
+                                        cursor: 'pointer'
+                                    }}
+                                    onClick={() => {
+                                        setEdit(prev => ({
+                                            ...prev,
+                                            grids: prev.grids.map((row, r) =>
+                                                row.map((cell, c) => r == rowIndex && c == colIndex ? '#ff0000' : cell)
+                                            )
+                                        }))
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            )
         }
+
+
     }
 
     return (
         <div>
+            {/* <input type="text" onInput={(input) => setEdit({
+                ...edit,
+                gridX: handleInput(input),
+            })} /> */}
+            {/* <input type="submit" onSubmit={() => setEdit({
+                ...edit,
+                gridY: 10,
+            })} /> */}
+            <button onClick={() => setEdit({
+                ...edit,
+                smallGrid: true
+            })}>edit.smallGrid: true</button>
+            <button onClick={() => setEdit({
+                ...edit,
+                smallGrid: false
+            })}>edit.smallGrid: false</button>
             <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center'
             }}>
-                {edit.grids.map((row, rowIndex) => (
-                    <div key={rowIndex} style={{ display: 'flex' }}>
-                        {row.map((cell, colIndex) => (
-                            <div
-                                key={colIndex}
-                                style={{
-                                    border: 'solid 0.0625rem black',
-                                    backgroundColor: cell || 'transparent',
-                                    width: toRem(10),
-                                    height: toRem(10),
-                                    cursor: 'pointer'
-                                }}
-                                onClick={() => {
-                                    setEdit(prev => ({
-                                        ...prev,
-                                        grids: prev.grids.map((row, r) =>
-                                            row.map((cell, c) => r == rowIndex && c == colIndex ? '#ff0000' : cell)
-                                        )
-                                    }))
-                                }}
-                            />
-                        ))}
-                    </div>
-                ))}
+                {smallGrid()}
             </div>
             <div>
                 CHANGE LAYER
                 <ul>
-                    <li onClick={() => setEdit(prev => ({...prev, layerView: 0}))}>HEAD</li>
-                    <li onClick={() => setEdit(prev => ({...prev, layerView: 1}))}>TORSO</li>
-                    <li onClick={() => setEdit(prev => ({...prev, layerView: 2}))}>BONE</li>
+                    <li onClick={() => setEdit(prev => ({ ...prev, layerView: 0 }))}>HEAD</li>
+                    <li onClick={() => setEdit(prev => ({ ...prev, layerView: 1 }))}>TORSO</li>
+                    <li onClick={() => setEdit(prev => ({ ...prev, layerView: 2 }))}>BONE</li>
                 </ul>
             </div>
-            <div onClick={() => setFinal()}>SAVE</div>
+            {/* <div onClick={() => setFinal()}>SAVE</div> */}
         </div>
     )
 }
