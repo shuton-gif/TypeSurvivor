@@ -1,6 +1,7 @@
 'use client'
 import { useState } from "react"
 import { ColorSetter } from "./components/ColorSetter"
+import { ColorAdder } from "./components/ColorAdder"
 import { LayerPanel } from "./components/LayerPanel"
 import { PixelGrid } from "./components/PixelGrid"
 import { WebPConverter, downloadPixelArt, convertPixelGridToWebP, savePixelArtToAssets, ConversionOptions } from "./components/WebPConverter"
@@ -41,8 +42,7 @@ export function ObjectMaker() {
     })
 
     const [previewImage, setPreviewImage] = useState<string | null>(null)
-
-    const availableColors = ['red', 'blue', 'yellow', 'transparent']
+    const [availableColors, setAvailableColors] = useState<string[]>(['red', 'blue', 'yellow', 'transparent'])
 
     const handleColorSelect = (color: string) => {
         setEditor({
@@ -88,6 +88,31 @@ export function ObjectMaker() {
         }))
         // Clear preview when grid is resized
         setPreviewImage(null)
+    }
+
+    const handleClearGrid = () => {
+        setEditor(prev => ({
+            ...prev,
+            onGoing: prev.onGoing.map(row => 
+                row.map(pixel => ({
+                    ...pixel,
+                    color: 'transparent',
+                    isPainted: false
+                }))
+            )
+        }))
+        // Clear preview when grid is cleared
+        setPreviewImage(null)
+    }
+
+    const handleColorAdder = (newColor: string) => {
+        // Check if color already exists
+        if (!availableColors.includes(newColor)) {
+            setAvailableColors(prev => [...prev, newColor])
+            console.log(`Added new color: ${newColor}`)
+        } else {
+            alert('Color already exists in the palette!')
+        }
     }
 
     // WebP Export Handler - Direct download
@@ -207,11 +232,21 @@ export function ObjectMaker() {
                     onPixelClick={handlePixelClick}
                     onGridResize={handleGridResize}
                     onExportImage={handleExportImage}
+                    onClearGrid={handleClearGrid}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div>
-                        <h4 style={{ margin: '0 0 10px 0' }}>Colors</h4>
-                        {availableColors.map((color) => (
+                        <h4 style={{ margin: '0 0 10px 0' }}>Tools</h4>
+                        <ColorSetter
+                            key="eraser"
+                            color="transparent"
+                            isActive={editor.brushColor === 'transparent'}
+                            isEraser={true}
+                            onSelect={handleColorSelect}
+                        />
+                        
+                        <h4 style={{ margin: '10px 0 10px 0' }}>Colors</h4>
+                        {availableColors.filter(color => color !== 'transparent').map((color) => (
                             <ColorSetter
                                 key={color}
                                 color={color}
@@ -219,8 +254,10 @@ export function ObjectMaker() {
                                 onSelect={handleColorSelect}
                             />
                         ))}
+                        <div style={{ marginTop: '10px' }}>
+                            <ColorAdder onAdd={handleColorAdder} />
+                        </div>
                     </div>
-
                     <div style={{ marginTop: '20px' }}>
                         <h4 style={{ margin: '0 0 10px 0' }}>Export Options</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

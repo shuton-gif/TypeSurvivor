@@ -13,9 +13,10 @@ interface PixelGridProps {
     onPixelClick: (rowIndex: number, colIndex: number) => void
     onGridResize?: (height: number, width: number) => void
     onExportImage?: (gridData: Pixel[][], filename?: string) => Promise<void>
+    onClearGrid?: () => void
 }
 
-export function PixelGrid({ gridData, onPixelClick, onGridResize, onExportImage }: PixelGridProps) {
+export function PixelGrid({ gridData, onPixelClick, onGridResize, onExportImage, onClearGrid }: PixelGridProps) {
     const [gridHeight, setGridHeight] = useState<number>(16)
     const [gridWidth, setGridWidth] = useState<number>(16)
     const [filename, setFilename] = useState<string>('my-pixel-art')
@@ -35,6 +36,12 @@ export function PixelGrid({ gridData, onPixelClick, onGridResize, onExportImage 
         }
         if (onExportImage) {
             await onExportImage(gridData, filename.trim())
+        }
+    }
+
+    const handleClearGrid = () => {
+        if (onClearGrid) {
+            onClearGrid()
         }
     }
 
@@ -77,7 +84,22 @@ export function PixelGrid({ gridData, onPixelClick, onGridResize, onExportImage 
                             style={{ margin: '0 0.5rem', width: '120px' }}
                         />
                     </label>
+                    <button type="submit">Export WebP</button>
                 </form>
+
+                <button 
+                    onClick={handleClearGrid}
+                    style={{ 
+                        padding: '8px 12px', 
+                        backgroundColor: '#ff4444', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Clear Canvas
+                </button>
             </div>
             {gridData.map((row, rowIndex) => (
                 <div key={rowIndex} style={{ display: 'flex' }}>
